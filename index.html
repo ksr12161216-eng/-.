@@ -10,6 +10,7 @@
     :root {
       --bg-dark: #0f172a;
       --card-bg: #1e293b;
+      --card-border: #334155;
       --primary: #3b82f6;
       --accent-gold: #f59e0b;
       --accent-green: #10b981;
@@ -19,7 +20,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
     
-    /* 상단 통합 네비게이션 헤더 */
+    /* 상단 통합 헤더 */
     header {
       background: rgba(30, 41, 59, 0.85);
       backdrop-filter: blur(10px);
@@ -27,9 +28,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid var(--card-border);
     }
-    .brand-title { font-size: 1.25rem; font-weight: 800; color: #60a5fa; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+    .brand-title { font-size: 1.2rem; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 8px; }
     .nav-tabs { display: flex; gap: 8px; background: #0f172a; padding: 4px; border-radius: 10px; }
     .tab-btn {
       padding: 8px 18px;
@@ -43,31 +44,24 @@
     }
     .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
 
-    /* 메인 뷰 영역 */
+    /* 메인 뷰 */
     main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; }
     .view-section { display: none; width: 100%; height: 100%; }
     .view-section.active { display: flex; flex-direction: column; }
 
-    /* 1. 교사용 대시보드 (전광판) */
+    /* 1. 교사용 대시보드 */
     .dashboard-container {
       display: grid;
-      grid-template-columns: 1fr 1.3fr;
+      grid-template-columns: 360px 1fr;
       gap: 24px;
       margin-top: 10px;
     }
-    .card { background: var(--card-bg); border-radius: 20px; padding: 28px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .card { background: var(--card-bg); border-radius: 20px; padding: 28px; border: 1px solid var(--card-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     
-    /* 알피 상태 비주얼 */
-    .alphi-stage {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
+    .alphi-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     .alphi-avatar {
-      width: 180px;
-      height: 180px;
+      width: 170px;
+      height: 170px;
       border-radius: 50%;
       background: #334155;
       display: flex;
@@ -75,67 +69,63 @@
       justify-content: center;
       font-size: 5rem;
       margin-bottom: 20px;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
-      transition: transform 0.3s ease;
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.25);
     }
-    .alphi-name { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+    .alphi-name { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
     .status-badge {
       display: inline-block;
       padding: 6px 14px;
       border-radius: 20px;
-      background: #1e3a8a;
-      color: #93c5fd;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
       margin-bottom: 12px;
     }
+    .stage-1 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .stage-2 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .stage-3 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+    .stage-4 { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
 
-    /* 코인 누적 게이지 */
-    .funding-stats { display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+    .alphi-quote {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 12px;
+      width: 100%;
+      border: 1px solid var(--card-border);
+    }
+
+    .funding-stats { display: flex; flex-direction: column; justify-content: space-around; gap: 20px; }
     .counter-box { display: flex; justify-content: space-between; align-items: flex-end; }
-    .counter-val { font-size: 3.5rem; font-weight: 900; color: var(--accent-gold); line-height: 1; }
-    .target-val { font-size: 1.2rem; color: var(--text-sub); }
+    .counter-val { font-size: 3.8rem; font-weight: 900; color: var(--accent-gold); line-height: 1; }
+    .target-val { font-size: 1.1rem; color: var(--text-sub); }
 
-    .gauge-wrapper { width: 100%; height: 32px; background: #0f172a; border-radius: 16px; overflow: hidden; padding: 4px; border: 1px solid #475569; }
+    .gauge-wrapper { width: 100%; height: 34px; background: #0f172a; border-radius: 18px; overflow: hidden; padding: 4px; border: 1px solid #475569; }
     .gauge-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #eab308, #f59e0b, #10b981);
-      border-radius: 12px;
+      background: linear-gradient(90deg, #f59e0b, #3b82f6, #10b981);
+      border-radius: 14px;
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .level-milestones {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .milestone-card {
-      background: #0f172a;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid #334155;
-      font-size: 0.85rem;
-    }
-    .milestone-card.achieved { border-color: var(--accent-green); background: rgba(16, 185, 129, 0.08); }
+    .level-milestones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .milestone-card { background: #0f172a; padding: 14px; border-radius: 12px; border: 1px solid var(--card-border); font-size: 0.85rem; text-align: center; }
+    .milestone-card.achieved { border-color: var(--accent-green); background: rgba(16, 185, 129, 0.1); }
     .milestone-step { font-weight: 700; color: #60a5fa; margin-bottom: 4px; }
 
-    /* 2. 학생용 사례 선택 허브 */
+    /* 2. 학생용 허브 */
     .student-hub-header { text-align: center; margin-bottom: 28px; }
     .student-hub-header h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
     .student-hub-header p { color: var(--text-sub); }
-
-    .case-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
-    }
+    .case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .case-card {
       background: var(--card-bg);
       border-radius: 18px;
       padding: 24px;
-      border: 1px solid #334155;
+      border: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -160,40 +150,86 @@
     }
     .enter-btn:hover { background: #1d4ed8; }
 
-    @media (max-width: 860px) {
-      .dashboard-container { grid-template-columns: 1fr; }
+    /* 보안 비밀번호 모달 창 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
     }
+    .modal-card {
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .modal-card h3 { font-size: 1.4rem; margin-bottom: 8px; }
+    .modal-card p { font-size: 0.95rem; color: var(--text-sub); margin-bottom: 20px; }
+    .pw-input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: #0f172a;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    .pw-input:focus { border-color: var(--primary); }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-submit { background: var(--primary); color: #fff; }
+    .btn-cancel { background: #334155; color: var(--text-sub); }
   </style>
 </head>
 <body>
 
+  <!-- 상단 네비게이션 -->
   <header>
     <div class="brand-title">🤖 PROJECT AL-P : 클린 AI 리부트</div>
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchView('dashboard')">교사용 전광판</button>
-      <button class="tab-btn" onclick="switchView('student')">학생용 수사 허브</button>
+      <button class="tab-btn" id="tab-dashboard" onclick="requestTeacherAccess()">교사용 전광판 🔒</button>
+      <button class="tab-btn active" id="tab-student" onclick="switchView('student')">학생용 수사 허브</button>
     </div>
   </header>
 
   <main>
-    <!-- 1. 교사용 실시간 전광판 (교실 TV/전자칠판용) -->
-    <section id="dashboard-view" class="view-section active">
+    <!-- 1. 교사용 실시간 전광판 (비밀번호 인증 후 진입) -->
+    <section id="dashboard-view" class="view-section">
       <div class="dashboard-container">
         
         <div class="card alphi-stage">
           <div id="alphiAvatar" class="alphi-avatar">😵‍💫</div>
           <h3 class="alphi-name">AI 매니저 알피(AL-P)</h3>
-          <div id="cleanBadge" class="status-badge">정화 1단계 : 데이터 오염 상태</div>
-          <p id="alphiQuote" style="color: var(--text-sub); font-size: 0.95rem; max-width: 320px;">
-            "수사관님... 과거 데이터에 있는 고정관념과 거짓 정보를 그대로 복사해 버렸어요..."
-          </p>
+          <div id="cleanBadge" class="status-badge stage-1">정화 1단계 : 데이터 오류</div>
+          <div id="alphiQuote" class="alphi-quote">
+            "수사관님... 과거 데이터에 있는 고정관념과 거짓 정보를 그대로 믿어버렸어요..."
+          </div>
         </div>
 
         <div class="card funding-stats">
           <div>
-            <span style="font-weight: 700; color: #94a3b8; font-size: 0.9rem;">실시간 학급 펀딩 현황</span>
+            <span style="font-weight: 700; color: #94a3b8; font-size: 0.95rem;">학급 공동 적립 현황</span>
             <div class="counter-box">
-              <div class="counter-val"><span id="totalCoinCount">0</span> <span style="font-size: 1.5rem; font-weight:700;">AI 알피 코인</span></div>
+              <div class="counter-val"><span id="totalCoinCount">0</span> <span style="font-size: 1.6rem; font-weight:700;">코인</span></div>
               <div class="target-val">목표: <strong>300 코인</strong></div>
             </div>
           </div>
@@ -203,17 +239,17 @@
           </div>
 
           <div class="level-milestones">
-            <div id="ms1" class="milestone-card achieved">
-              <div class="milestone-step">100 코인</div>
-              <div>편향성 제거 (공정 필터)</div>
+            <div id="ms1" class="milestone-card">
+              <div class="milestone-step">LV.2 (100 코인)</div>
+              <div>편향성 제거</div>
             </div>
             <div id="ms2" class="milestone-card">
-              <div class="milestone-step">200 코인</div>
-              <div>권리 보호 (초상권/출처)</div>
+              <div class="milestone-step">LV.3 (200 코인)</div>
+              <div>권리 & 출처 보호</div>
             </div>
             <div id="ms3" class="milestone-card">
-              <div class="milestone-step">300 코인</div>
-              <div>완전 정화 (클린 AI 리부트)</div>
+              <div class="milestone-step">LV.4 (300 코인)</div>
+              <div>클린 AI 완성</div>
             </div>
           </div>
         </div>
@@ -221,15 +257,14 @@
       </div>
     </section>
 
-    <!-- 2. 학생용 사례 선택 허브 (태블릿/구글 사이트 링크용) -->
-    <section id="student-view" class="view-section">
+    <!-- 2. 학생용 사례 선택 허브 (기본 화면) -->
+    <section id="student-view" class="view-section active">
       <div class="student-hub-header">
         <h2>수사관 공식 사건 케이스 파일</h2>
         <p>각 사례를 조사하고 문제를 해결하여 <strong>1~10개의 랜덤 AI 알피 코인</strong>을 펀딩하세요!</p>
       </div>
 
       <div class="case-grid">
-        <!-- CASE 1 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 01 · 환각 현상</div>
@@ -239,7 +274,6 @@
           <a href="case.html?id=1" class="enter-btn">사건 파일 열기 ➔</a>
         </div>
 
-        <!-- CASE 2 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 02 · 데이터 편향성</div>
@@ -249,7 +283,6 @@
           <a href="case.html?id=2" class="enter-btn">사건 파일 열기 ➔</a>
         </div>
 
-        <!-- CASE 3 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 03 · 권리 침해 & 초상권</div>
@@ -259,7 +292,6 @@
           <a href="case.html?id=3" class="enter-btn">사건 파일 열기 ➔</a>
         </div>
 
-        <!-- CASE 4 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 04 · 무비판적 과의존</div>
@@ -269,7 +301,6 @@
           <a href="case.html?id=4" class="enter-btn">사건 파일 열기 ➔</a>
         </div>
 
-        <!-- CASE 5 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 05 · 딥페이크 & 정보 조작</div>
@@ -279,7 +310,6 @@
           <a href="case.html?id=5" class="enter-btn">사건 파일 열기 ➔</a>
         </div>
 
-        <!-- CASE 6 -->
         <div class="case-card">
           <div>
             <div class="case-tag">CASE 06 · 출처 불명 & 신뢰성</div>
@@ -292,68 +322,110 @@
     </section>
   </main>
 
-  <script>
-    // ⚠️ 배포하신 Google Apps Script 웹 앱 URL을 아래 따옴표 안에 입력하세요.
-    const GAS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQoS25dBAV2ToonVOa-rqcFEa-Yeb6LxgCeDDjBW8i-GhEwBc_aZjrFqk4xTNCfFHcd08IYSvpWB-wPzCen1KN6UeXXlP-nDvZxzvbuKqkHOcW97fKYY4sMGs8_-L6L6IPQXhpvgywh4FABxn_1m8a_QH59Hn5_arGUv8H5x-VvzVu7dpX1gKqAD3dGJtRpe_JfU_VjAnveNix020nrEs8QMAcCrI0kSvqP43ZS1c48RnUlzRK44plYKG7id8SUyu-w8mEydk1xeJ_NCkmqi8B-EyIPow&lib=MIF2phESm5llnf45l3zqnTrBo4TGvA1H8";
-    const TARGET_COINS = 300;
+  <!-- 교사용 비밀번호 입력 팝업창 -->
+  <div id="pwModal" class="modal-overlay">
+    <div class="modal-card">
+      <h3>🔒 교사 인증</h3>
+      <p>대시보드 접속을 위해 비밀번호를 입력하세요.</p>
+      <input type="password" id="pwInput" class="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') verifyPassword()">
+      <div class="modal-btns">
+        <button class="modal-btn btn-cancel" onclick="closeModal()">취소</button>
+        <button class="modal-btn btn-submit" onclick="verifyPassword()">입장</button>
+      </div>
+    </div>
+  </div>
 
-    // 뷰 전환 함수
+  <script>
+    // ⚠️ 배포하신 Google Apps Script 웹 앱 URL을 입력하세요.
+    const GAS_API_URL = "YOUR_GAS_WEBAPP_URL_HERE";
+    const TARGET_COINS = 300;
+    let isTeacherAuthenticated = false; // 인증 여부 저장
+
+    // 뷰 전환
     function switchView(mode) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
 
       if (mode === 'dashboard') {
-        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('tab-dashboard').classList.add('active');
         document.getElementById('dashboard-view').classList.add('active');
+        updateDashboard();
       } else {
-        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('tab-student').classList.add('active');
         document.getElementById('student-view').classList.add('active');
       }
     }
 
-    // 전광판 데이터 실시간 갱신 (폴링)
+    // 교사용 접근 요청 시 인증 확인
+    function requestTeacherAccess() {
+      if (isTeacherAuthenticated) {
+        switchView('dashboard');
+      } else {
+        document.getElementById('pwModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('pwInput').focus(), 50);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('pwModal').style.display = 'none';
+      document.getElementById('pwInput').value = '';
+    }
+
+    // 비밀번호 검증 (alpi)
+    function verifyPassword() {
+      const input = document.getElementById('pwInput').value.trim();
+      if (input === 'alpi') {
+        isTeacherAuthenticated = true;
+        closeModal();
+        switchView('dashboard');
+      } else {
+        alert('비밀번호가 올바르지 않습니다.');
+        document.getElementById('pwInput').value = '';
+        document.getElementById('pwInput').focus();
+      }
+    }
+
+    // 전광판 실시간 데이터 갱신
     async function updateDashboard() {
-      if (!GAS_API_URL || GAS_API_URL === "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQoS25dBAV2ToonVOa-rqcFEa-Yeb6LxgCeDDjBW8i-GhEwBc_aZjrFqk4xTNCfFHcd08IYSvpWB-wPzCen1KN6UeXXlP-nDvZxzvbuKqkHOcW97fKYY4sMGs8_-L6L6IPQXhpvgywh4FABxn_1m8a_QH59Hn5_arGUv8H5x-VvzVu7dpX1gKqAD3dGJtRpe_JfU_VjAnveNix020nrEs8QMAcCrI0kSvqP43ZS1c48RnUlzRK44plYKG7id8SUyu-w8mEydk1xeJ_NCkmqi8B-EyIPow&lib=MIF2phESm5llnf45l3zqnTrBo4TGvA1H8") return;
+      if (!GAS_API_URL || GAS_API_URL.includes("YOUR_GAS_WEBAPP_URL_HERE")) return;
 
       try {
-        const response = await fetch(GAS_API_URL);
-        const data = await response.json();
+        const res = await fetch(GAS_API_URL);
+        const data = await res.json();
 
         if (data.status === "success") {
-          const total = data.totalCoins || 0;
+          const total = Number(data.totalCoins) || 0;
           document.getElementById('totalCoinCount').innerText = total;
 
-          // 게이지 비율 계산
           const percent = Math.min(Math.round((total / TARGET_COINS) * 100), 100);
           document.getElementById('gaugeFill').style.width = percent + '%';
 
-          // 단계별 UI 및 알피 비주얼 진화
           const avatar = document.getElementById('alphiAvatar');
           const badge = document.getElementById('cleanBadge');
           const quote = document.getElementById('alphiQuote');
-
           const ms1 = document.getElementById('ms1');
           const ms2 = document.getElementById('ms2');
           const ms3 = document.getElementById('ms3');
 
           if (total >= 300) {
             avatar.innerText = "😎";
-            badge.innerText = "최종 정화 완료 : 완벽한 클린 AI 알피!";
-            badge.style.background = "#065f46";
-            badge.style.color = "#6ee7b7";
-            quote.innerText = "“수사관 여러분 덕분에 거짓과 편견 없는 진짜 AI로 다시 태어났어요!”";
+            badge.className = "status-badge stage-4";
+            badge.innerText = "정화 완료 : 공식 안심 클린 AI";
+            quote.innerText = "“수사관 여러분 덕분에 거짓과 편견이 모두 정화되었어요! 고마워요!”";
             ms1.classList.add('achieved');
             ms2.classList.add('achieved');
             ms3.classList.add('achieved');
           } else if (total >= 200) {
             avatar.innerText = "🛡️";
+            badge.className = "status-badge stage-3";
             badge.innerText = "정화 3단계 : 권리 보호 & 출처 검증 장착";
-            quote.innerText = "“친구들의 권리를 지키고 정확한 출처를 찾는 방패를 얻었습니다!”";
+            quote.innerText = "“친구들의 권리와 출처를 지켜주는 안전 방패를 장착했습니다!”";
             ms1.classList.add('achieved');
             ms2.classList.add('achieved');
             ms3.classList.remove('achieved');
           } else if (total >= 100) {
             avatar.innerText = "🧐";
+            badge.className = "status-badge stage-2";
             badge.innerText = "정화 2단계 : 공정 필터 장착 (편향성 제거)";
             quote.innerText = "“고정관념에서 벗어나 세상을 균형 있게 바라보는 안경을 썼어요!”";
             ms1.classList.add('achieved');
@@ -361,21 +433,25 @@
             ms3.classList.remove('achieved');
           } else {
             avatar.innerText = "😵‍💫";
-            badge.innerText = "정화 1단계 : 데이터 오염 상태";
-            quote.innerText = "“수사관님... 과거 데이터에 있는 고정관념과 거짓 정보를 그대로 복사해 버렸어요...”";
+            badge.className = "status-badge stage-1";
+            badge.innerText = "정화 1단계 : 데이터 오류";
+            quote.innerText = "“수사관님... 과거 데이터에 있는 고정관념과 거짓 정보를 그대로 믿어버렸어요...”";
             ms1.classList.remove('achieved');
             ms2.classList.remove('achieved');
             ms3.classList.remove('achieved');
           }
         }
       } catch (err) {
-        console.error("전광판 데이터 호출 오류:", err);
+        console.error("대시보드 갱신 오류:", err);
       }
     }
 
-    // 4초 주기로 자동 폴링
-    updateDashboard();
-    setInterval(updateDashboard, 4000);
+    // 3초마다 전광판 데이터 자동 동기화
+    setInterval(() => {
+      if (document.getElementById('dashboard-view').classList.contains('active')) {
+        updateDashboard();
+      }
+    }, 3000);
   </script>
 </body>
 </html>
