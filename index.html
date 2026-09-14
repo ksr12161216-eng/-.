@@ -559,7 +559,7 @@
 
   <script>
     // ⚠️ 여기에 배포하신 Google Apps Script 웹 앱 URL을 넣으세요.
-    const GAS_API_URL = "YOUR_GAS_WEBAPP_URL_HERE";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyDQO0DBKPXfdUqaUiIqsg5yC7HIMcOu--Uu6dGJYl5jHyQA5nafP5FVqoqpLti-iyy/exec";
     const TARGET_COINS = 200;
 
     let pollingInterval = null;
@@ -602,7 +602,7 @@
     }
 
     async function fetchDashboard() {
-      if (!GAS_API_URL || GAS_API_URL.includes("YOUR_GAS_WEBAPP_URL_HERE")) return;
+      if (!GAS_API_URL || GAS_API_URL.includes("https://script.google.com/macros/s/AKfycbyDQO0DBKPXfdUqaUiIqsg5yC7HIMcOu--Uu6dGJYl5jHyQA5nafP5FVqoqpLti-iyy/exec")) return;
 
       try {
         const res = await fetch(GAS_API_URL);
