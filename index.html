@@ -30,11 +30,11 @@
 
     .container {
       width: 100%;
-      max-width: 600px; /* 길쭉한 세로형 레이아웃 */
+      max-width: 600px; /* 세로형 최적화 레이아웃 */
       margin: 0 auto;
     }
 
-    /* 1. 첫 접속 메인 포털 화면 */
+    /* 1. 첫 화면: 선택 포털 */
     #portal-view {
       display: flex;
       flex-direction: column;
@@ -45,7 +45,7 @@
       gap: 24px;
     }
     .portal-title h1 {
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       font-weight: 900;
       background: linear-gradient(90deg, #60a5fa, #c084fc);
       -webkit-background-clip: text;
@@ -71,7 +71,6 @@
       align-items: center;
       justify-content: space-between;
       color: var(--text);
-      text-decoration: none;
       cursor: pointer;
       transition: all 0.25s ease;
     }
@@ -100,7 +99,7 @@
     .btn-text p { font-size: 0.85rem; color: var(--text-sub); }
     .arrow-icon { font-size: 1.4rem; color: var(--text-sub); }
 
-    /* 뒤로가기 상단 바 */
+    /* 상단 내비게이션 바 */
     .top-back-bar {
       display: flex;
       align-items: center;
@@ -176,7 +175,6 @@
       border: 1px solid var(--card-border);
     }
 
-    /* 코인 수량 & 세로형 게이지 */
     .coin-box {
       display: flex;
       justify-content: space-between;
@@ -203,7 +201,6 @@
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* 50코인 단위 세로형 마일스톤 */
     .milestone-stack {
       display: flex;
       flex-direction: column;
@@ -229,34 +226,76 @@
     .ms-check { font-size: 1.2rem; color: #475569; }
     .ms-item.active .ms-check { color: var(--green); }
 
-    /* 3. 학생용 허브 */
+    /* 3. 학생용 수사 허브 (포스터 카드 형태) */
     #student-view { display: none; }
-    .case-stack { display: flex; flex-direction: column; gap: 14px; }
-    .case-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 20px;
+    .case-poster-stack {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
     }
-    .case-tag { font-size: 0.75rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; }
-    .case-title { font-size: 1.15rem; font-weight: 700; }
-    .case-desc { font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; margin-bottom: 8px; }
-    .enter-btn {
-      display: block;
-      text-align: center;
-      padding: 11px;
-      border-radius: 10px;
+    .poster-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+    }
+    .poster-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+    }
+    .poster-thumb {
+      width: 100%;
+      height: 140px;
+      background: #0f172a;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .poster-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #38bdf8;
+      border: 1px solid #334155;
+    }
+    .poster-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .poster-title { font-size: 1.15rem; font-weight: 800; color: #f8fafc; line-height: 1.35; }
+    .poster-desc { font-size: 0.88rem; color: var(--text-sub); line-height: 1.45; }
+    .poster-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
       background: var(--primary);
       color: #fff;
       text-decoration: none;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      transition: background 0.2s;
     }
+    .poster-btn:hover { background: #2563eb; }
 
-    /* 비밀번호 모달 창 */
+    /* 비밀번호 모달 */
     .modal-wrap {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -300,7 +339,7 @@
 
   <div class="container">
 
-    <!-- 1. 첫 접속 화면: 선택 포털 -->
+    <!-- 1. 첫 화면: 선택 포털 -->
     <section id="portal-view">
       <div class="portal-title">
         <h1>PROJECT AL-P</h1>
@@ -308,7 +347,6 @@
       </div>
 
       <div class="portal-btn-group">
-        <!-- 교사용 버튼 (비밀번호 모달 트리거) -->
         <div class="portal-card-btn" onclick="openPwModal()">
           <div class="btn-icon-title">
             <div class="btn-icon">🔒</div>
@@ -320,7 +358,6 @@
           <span class="arrow-icon">➔</span>
         </div>
 
-        <!-- 학생용 버튼 -->
         <div class="portal-card-btn" onclick="openStudentHub()">
           <div class="btn-icon-title">
             <div class="btn-icon">🕵️</div>
@@ -334,7 +371,7 @@
       </div>
     </section>
 
-    <!-- 2. 교사용 전광판 (길쭉한 세로형 레이아웃) -->
+    <!-- 2. 교사용 전광판 (세로형) -->
     <section id="dashboard-view">
       <div class="top-back-bar">
         <button class="back-btn" onclick="goHome()">◀ 메인 화면으로</button>
@@ -342,7 +379,6 @@
       </div>
 
       <div class="dash-card">
-        <!-- 알피 캐릭터 영역 -->
         <div class="alphi-center">
           <div id="alphiAvatar" class="alphi-avatar">😵‍💫</div>
           <h2 style="font-size: 1.4rem; margin-bottom: 6px;">AI 매니저 알피(AL-P)</h2>
@@ -352,7 +388,6 @@
           </div>
         </div>
 
-        <!-- 코인 수치 & 게이지 바 -->
         <div>
           <div class="coin-box">
             <div>
@@ -366,7 +401,7 @@
           </div>
         </div>
 
-        <!-- 50단위 4단계 마일스톤 (세로 스택) -->
+        <!-- 50단위 4단계 마일스톤 -->
         <div class="milestone-stack">
           <div id="ms1" class="ms-item">
             <div class="ms-info">
@@ -403,65 +438,113 @@
       </div>
     </section>
 
-    <!-- 3. 학생용 수사 허브 (세로 리스트) -->
+    <!-- 3. 학생용 수사 허브 (사건 포스터 카드 형태) -->
     <section id="student-view">
       <div class="top-back-bar">
         <button class="back-btn" onclick="goHome()">◀ 메인 화면으로</button>
       </div>
 
       <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">사건 파일 선택</h2>
+        <h2 style="font-size: 1.6rem; font-weight: 900; margin-bottom: 6px;">수사관 사건 파일 갤러리</h2>
         <p style="font-size: 0.9rem; color: var(--text-sub);">사례를 해결하고 1~10개의 랜덤 코인을 적립하세요!</p>
       </div>
 
-      <div class="case-stack">
-        <div class="case-card">
-          <div class="case-tag">CASE 01 · 환각 현상</div>
-          <div class="case-title">우주식량과 랍스터 급식 공약</div>
-          <div class="case-desc">예산 검토도 없이 거짓말을 만들어낸 AI의 할루시네이션 오류를 수사합니다.</div>
-          <a href="case.html?id=1" class="enter-btn">사건 파일 열기 ➔</a>
+      <div class="case-poster-stack">
+        <!-- CASE 01 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 01 · 환각 현상</span>
+            <div style="font-size: 3.5rem;">🦞</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">우주식량과 랍스터 급식 공약 사건</div>
+              <div class="poster-desc">예산 검토도 없이 거짓말을 만들어낸 AI의 할루시네이션 오류를 수사합니다.</div>
+            </div>
+            <a href="case.html?id=1" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
 
-        <div class="case-card">
-          <div class="case-tag">CASE 02 · 데이터 편향성</div>
-          <div class="case-title">과거 데이터 기반 역할 분담</div>
-          <div class="case-desc">"응원은 여학생, 운반은 남학생" 고정관념을 학습한 알고리즘을 바로잡습니다.</div>
-          <a href="case.html?id=2" class="enter-btn">사건 파일 열기 ➔</a>
+        <!-- CASE 02 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 02 · 데이터 편향성</span>
+            <div style="font-size: 3.5rem;">⚖️</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">과거 데이터 기반 역할 분담 사건</div>
+              <div class="poster-desc">"응원은 여학생, 운반은 남학생" 고정관념을 학습한 편향 알고리즘을 바로잡습니다.</div>
+            </div>
+            <a href="case.html?id=2" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
 
-        <div class="case-card">
-          <div class="case-tag">CASE 03 · 권리 침해 & 초상권</div>
-          <div class="case-title">민우의 메롱 엽기 사진 도용</div>
-          <div class="case-desc">동의 없이 인터넷 과거 사진을 생성 결과물에 무단 사용한 침해 사례를 규명합니다.</div>
-          <a href="case.html?id=3" class="enter-btn">사건 파일 열기 ➔</a>
+        <!-- CASE 03 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 03 · 권리 침해 & 초상권</span>
+            <div style="font-size: 3.5rem;">📸</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">민우의 메롱 엽기 사진 도용 사건</div>
+              <div class="poster-desc">동의 없이 인터넷 과거 사진을 생성 결과물에 무단 도용한 침해 사례를 규명합니다.</div>
+            </div>
+            <a href="case.html?id=3" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
 
-        <div class="case-card">
-          <div class="case-tag">CASE 04 · 무비판적 과의존</div>
-          <div class="case-title">10초 만에 끝낸 복붙 출마 선언문</div>
-          <div class="case-desc">AI 결과를 생각 없이 그대로 제출해 혼란을 야기한 원인을 분석합니다.</div>
-          <a href="case.html?id=4" class="enter-btn">사건 파일 열기 ➔</a>
+        <!-- CASE 04 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 04 · 무비판적 과의존</span>
+            <div style="font-size: 3.5rem;">📋</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">10초 만에 끝낸 복붙 출마 선언문</div>
+              <div class="poster-desc">생각 없이 AI 결과를 그대로 제출해 교실을 혼란에 빠뜨린 원인을 분석합니다.</div>
+            </div>
+            <a href="case.html?id=4" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
 
-        <div class="case-card">
-          <div class="case-tag">CASE 05 · 딥페이크 & 왜곡</div>
-          <div class="case-title">진짜 같은 가짜 응원단 합성</div>
-          <div class="case-desc">친구들이 지지하는 것처럼 이미지를 합성해 신뢰를 왜곡한 결함을 해결합니다.</div>
-          <a href="case.html?id=5" class="enter-btn">사건 파일 열기 ➔</a>
+        <!-- CASE 05 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 05 · 딥페이크 & 합성</span>
+            <div style="font-size: 3.5rem;">🎭</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">진짜 같은 가짜 응원단 합성 사건</div>
+              <div class="poster-desc">친구들과 캐릭터가 지지하는 것처럼 합성해 신뢰를 왜곡한 결함을 해결합니다.</div>
+            </div>
+            <a href="case.html?id=5" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
 
-        <div class="case-card">
-          <div class="case-tag">CASE 06 · 출처 불명 & 맹신</div>
-          <div class="case-title">근거 없는 100% 완벽 보장 답변</div>
-          <div class="case-desc">출처와 검증 없는 답변의 위험성을 밝혀내고 윤리적 사용 기준을 세웁니다.</div>
-          <a href="case.html?id=6" class="enter-btn">사건 파일 열기 ➔</a>
+        <!-- CASE 06 -->
+        <div class="poster-card">
+          <div class="poster-thumb">
+            <span class="poster-badge">CASE 06 · 출처 불명 & 맹신</span>
+            <div style="font-size: 3.5rem;">🔎</div>
+          </div>
+          <div class="poster-body">
+            <div>
+              <div class="poster-title">근거 없는 100% 완벽 보장 답변</div>
+              <div class="poster-desc">출처와 검증 없는 맹신 유도 답변의 위험성을 밝혀내는 최종 수사입니다.</div>
+            </div>
+            <a href="case.html?id=6" class="poster-btn">사건 파일 열기 ➔</a>
+          </div>
         </div>
       </div>
     </section>
 
   </div>
 
-  <!-- 비밀번호 입력 모달 -->
+  <!-- 비밀번호 모달 -->
   <div id="pwModal" class="modal-wrap">
     <div class="modal-box">
       <h3 style="font-size: 1.3rem; margin-bottom: 6px;">🔒 교사용 전광판 인증</h3>
@@ -475,9 +558,9 @@
   </div>
 
   <script>
-    // ⚠️ 배포하신 Google Apps Script 웹 앱 URL을 아래에 입력하세요.
-    const GAS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQoS25dBAV2ToonVOa-rqcFEa-Yeb6LxgCeDDjBW8i-GhEwBc_aZjrFqk4xTNCfFHcd08IYSvpWB-wPzCen1KN6UeXXlP-nDvZxzvbuKqkHOcW97fKYY4sMGs8_-L6L6IPQXhpvgywh4FABxn_1m8a_QH59Hn5_arGUv8H5x-VvzVu7dpX1gKqAD3dGJtRpe_JfU_VjAnveNix020nrEs8QMAcCrI0kSvqP43ZS1c48RnUlzRK44plYKG7id8SUyu-w8mEydk1xeJ_NCkmqi8B-EyIPow&lib=MIF2phESm5llnf45l3zqnTrBo4TGvA1H8";
-    const TARGET_COINS = 200; // 최종 4단계 정화 목표 코인 (50 * 4)
+    // ⚠️ 여기에 배포하신 Google Apps Script 웹 앱 URL을 넣으세요.
+    const GAS_API_URL = "YOUR_GAS_WEBAPP_URL_HERE";
+    const TARGET_COINS = 200;
 
     let pollingInterval = null;
 
@@ -519,7 +602,7 @@
     }
 
     async function fetchDashboard() {
-      if (!GAS_API_URL || GAS_API_URL.includes("https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQoS25dBAV2ToonVOa-rqcFEa-Yeb6LxgCeDDjBW8i-GhEwBc_aZjrFqk4xTNCfFHcd08IYSvpWB-wPzCen1KN6UeXXlP-nDvZxzvbuKqkHOcW97fKYY4sMGs8_-L6L6IPQXhpvgywh4FABxn_1m8a_QH59Hn5_arGUv8H5x-VvzVu7dpX1gKqAD3dGJtRpe_JfU_VjAnveNix020nrEs8QMAcCrI0kSvqP43ZS1c48RnUlzRK44plYKG7id8SUyu-w8mEydk1xeJ_NCkmqi8B-EyIPow&lib=MIF2phESm5llnf45l3zqnTrBo4TGvA1H8")) return;
+      if (!GAS_API_URL || GAS_API_URL.includes("YOUR_GAS_WEBAPP_URL_HERE")) return;
 
       try {
         const res = await fetch(GAS_API_URL);
@@ -541,12 +624,11 @@
           const ms3 = document.getElementById('ms3');
           const ms4 = document.getElementById('ms4');
 
-          // 50 단위 4단계 판별 로직
           if (total >= 200) {
             avatar.innerText = "😎";
             badge.className = "badge lv5";
             badge.innerText = "완전 정화 : 공식 클린 AI 완성";
-            msg.innerText = "“수사관 여러분 덕분에 거짓과 편견이 모두 사라졌어요! 진정한 클린 AI로 다시 시작합니다!”";
+            msg.innerText = "“수사관 여러분 덕분에 거짓과 편견이 모두 사라졌어요! 진정한 클린 AI로 다시 태어났습니다!”";
             ms1.classList.add('active');
             ms2.classList.add('active');
             ms3.classList.add('active');
