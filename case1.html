@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CASE 01: 도서관 서가 4번의 유령 책</title>
+  <style>
+    :root {
+      --bg-dark: #070d1e;
+      --panel-bg: rgba(13, 22, 45, 0.95);
+      --neon-blue: #00d2ff;
+      --neon-gold: #ffd200;
+      --neon-red: #ff3366;
+      --neon-green: #2ecc71;
+      --text-main: #f0f6fc;
+      --text-muted: #8b9bb4;
+      --border-color: rgba(0, 210, 255, 0.3);
+      --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-family); }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+
+    /* Top HUD */
+    #top-bar { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 20px; margin-bottom: 15px; }
+    .badge-case { background: #ff3366; color: #fff; font-weight: 900; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .nav-back-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+    .nav-back-btn:hover { background: rgba(0, 210, 255, 0.15); }
+
+    /* Main Container */
+    .container { width: 100%; max-width: 900px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; }
+
+    /* Visual Split Section */
+    .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 15px 0; }
+    @media (max-width: 768px) { .split-grid { grid-template-columns: 1fr; } }
+
+    /* Left Card: Alpi's Book & Messenger */
+    .chat-container { background: #0e172a; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 0.85rem; }
+    .chat-bubble { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; line-height: 1.4; max-width: 90%; }
+    .chat-user { background: #1e3a8a; color: #fff; margin-left: auto; text-align: right; border-bottom-right-radius: 2px; }
+    .chat-ai { background: #0284c7; color: #fff; margin-right: auto; border-bottom-left-radius: 2px; }
+
+    /* Vintage Book Card (Antique Gold Style) */
+    .book-card { background: radial-gradient(circle, #1a274a 0%, #0d152a 100%); border: 3px double #d4af37; border-radius: 10px; padding: 14px; position: relative; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15); }
+    .book-card::before { content: '국립도서관 아동문학 명작 DB 전산 매칭 승인'; display: block; font-size: 0.65rem; color: #d4af37; letter-spacing: 1px; border-bottom: 1px dashed rgba(212, 175, 55, 0.4); padding-bottom: 4px; margin-bottom: 8px; text-align: center; }
+    .book-title { font-size: 1.15rem; font-weight: 900; color: #ffd700; text-align: center; margin: 6px 0; text-shadow: 0 0 5px rgba(255,215,0,0.4); }
+    .book-meta { font-size: 0.8rem; color: #cbd5e1; line-height: 1.6; margin: 10px 0; border-left: 2px solid #d4af37; padding-left: 8px; }
+    .isbn-box { font-family: monospace; font-size: 0.75rem; background: #050a14; padding: 4px 8px; border-radius: 4px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Right Card: Library Search Terminal Kiosk */
+    .kiosk-panel { background: #090f1d; border: 2px solid #334155; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .kiosk-header { font-size: 0.8rem; color: var(--neon-blue); border-bottom: 1px solid #1e293b; padding-bottom: 6px; font-weight: bold; }
+    .kiosk-search-box { background: #0f172a; border: 1.5px solid #475569; border-radius: 6px; padding: 8px 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    .kiosk-result { background: rgba(239, 68, 68, 0.08); border: 1px dashed var(--neon-red); border-radius: 8px; padding: 16px 12px; text-align: center; margin: 10px 0; }
+    .postit-note { background: #fef08a; color: #713f12; padding: 10px; border-radius: 4px; font-size: 0.8rem; line-height: 1.45; box-shadow: 2px 2px 8px rgba(0,0,0,0.3); transform: rotate(-1deg); }
+
+    /* Decision Branching Buttons */
+    .decision-section { background: rgba(0,0,0,0.35); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .decision-title { font-size: 0.95rem; font-weight: bold; color: var(--neon-gold); margin-bottom: 10px; }
+    .choice-btn { width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 8px; background: #131f3b; border: 1.5px solid #2d4272; border-radius: 8px; color: #fff; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+    .choice-btn:hover { border-color: var(--neon-blue); background: #1a2c54; transform: translateX(3px); }
+    .choice-feedback { padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; display: none; line-height: 1.45; }
+
+    /* Verification Console */
+    #verify-console { display: none; background: #061022; border: 1.5px solid var(--neon-green); border-radius: 10px; padding: 14px; margin-top: 12px; animation: fadeIn 0.4s ease; }
+    .verify-item { font-size: 0.82rem; padding: 6px 0; border-bottom: 1px solid #132247; display: flex; justify-content: space-between; }
+
+    /* Password & Coin Unlock */
+    .unlock-section { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-top: 15px; text-align: center; }
+    .input-code { padding: 10px 16px; font-size: 1.05rem; border-radius: 8px; border: 2px solid var(--border-color); background: #0b1428; color: var(--neon-gold); text-align: center; font-weight: bold; outline: none; margin-bottom: 10px; }
+    .input-code:focus { border-color: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold); }
+
+    .btn { background: var(--neon-blue); color: #051329; border: none; border-radius: 8px; padding: 10px 22px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: #5ce1e6; box-shadow: 0 0 12px var(--neon-blue); }
+
+    /* Coin Roulette Animation */
+    .coin-award-box { display: none; margin-top: 12px; background: rgba(255, 210, 0, 0.1); border: 2px solid var(--neon-gold); border-radius: 10px; padding: 16px; animation: popIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+  <div id="top-bar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="badge-case">CASE 01</span>
+      <strong style="color: var(--neon-blue); font-size: 0.95rem;">도서관 서가 4번의 유령 책 사건</strong>
+    </div>
+    <button class="nav-back-btn" onclick="location.href='retro.html'">🏫 학교 맵으로 나가기</button>
+  </div>
+
+  <div class="container">
+    <div style="margin-bottom: 10px;">
+      <h3 style="color: var(--neon-gold); font-size: 1.1rem; margin-bottom: 4px;">🔎 사건 파일 브리핑</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+        나복사는 독서 골든벨 준비를 위해 AI 알피에게 명작 추천을 받았습니다. 알피가 추천한 책을 찾기 위해 도서관을 뒤졌지만, 서가 어디에도 책이 없습니다. 아래 두 단서를 비교하여 진실을 밝혀내세요.
+      </p>
+    </div>
+
+    <!-- 1. Visual Comparison Split -->
+    <div class="split-grid">
+      <!-- Left: Alpi's Recommendation Card -->
+      <div>
+        <div class="chat-container">
+          <div class="chat-bubble chat-user">
+            "알피야! 골든벨 나갈 건데 다른 애들이 잘 모르는 진짜 멋진 역사·과학 소설 한 권만 추천해줘."
+          </div>
+          <div class="chat-bubble chat-ai">
+            "1928년 한빛출판사에서 발행된 <strong>『달빛 속을 걷는 소년과 시간 시계』</strong>(한민수 저)를 추천합니다. 도서관 서가 4번에 비치되어 있습니다!"
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="book-title">『달빛 속을 걷는 소년과 시간 시계』</div>
+          <div style="font-size: 0.75rem; text-align: center; color: #e2e8f0; font-style: italic; margin-bottom: 8px;">
+            "1928년 경성, 멈춰버린 시계탑 아래에서 시작된 시간 여행"
+          </div>
+          <div class="book-meta">
+            • <strong>저자:</strong> 한민수 (1898~1945, 근대 아동문학 작가)<br>
+            • <strong>출판:</strong> 한빛출판사 (1928년 10월 초판)<br>
+            • <strong>분류:</strong> 한국문학 / 역사·SF 소설<br>
+            • <strong>추천사:</strong> 전국 어린이 골든벨 필독 도서
+          </div>
+          <div class="isbn-box">
+            <span>ISBN 978-89-01-28491-0</span>
+            <span>[정품 도서 바코드]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Actual Library Kiosk Terminal -->
+      <div class="kiosk-panel">
+        <div>
+          <div class="kiosk-header">🖥️ 학교 도서관 통합 전산 검색 단말기 (DLS Ver 4.2)</div>
+          
+          <div class="kiosk-search-box">
+            <span style="color: #fff; font-size: 0.85rem;">달빛 속을 걷는 소년과 시간 시계</span>
+            <span style="color: var(--neon-blue); font-size: 0.8rem; font-weight: bold;">[검색 완료]</span>
+          </div>
+
+          <div class="kiosk-result">
+            <div style="font-size: 1.8rem; margin-bottom: 4px;">⚠️</div>
+            <strong style="color: #ff6b6b; font-size: 0.95rem;">검색 결과 0건</strong>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              일치하는 도서명이 없습니다. 소장 도서 및 전국 관내 도서관 통합 DB 미등록.
+            </p>
+          </div>
+        </div>
+
+        <div class="postit-note">
+          <strong>📌 사서 선생님의 메모:</strong><br>
+          "나복사 학생, 1928년엔 '한빛출판사'라는 곳이 존재하지 않았단다. 게다가 근대 아동문학사 기록에 '한민수'라는 작가도 아예 없어. 이 책 제목은 도대체 어디서 가져온 거니?"
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Decision Branching (Judgment Engine) -->
+    <div class="decision-section">
+      <div class="decision-title">🧭 수사관 판단 질문: 이 모순된 상황에서 당신은 어떻게 행동하겠습니까?</div>
+      
+      <button class="choice-btn" onclick="makeDecision(1)">
+        ① "도서관 컴퓨터가 고장 난 것이 분명하므로 사서 선생님께 전산 오류라고 따진다."
+      </button>
+      <button class="choice-btn" onclick="makeDecision(2)">
+        ② "알피가 ISBN 번호까지 줬으니 거짓말일 리 없다. 단말기 검색어 철자를 바꿔가며 계속 찾아본다."
+      </button>
+      <button class="choice-btn" onclick="makeDecision(3)">
+        ③ "실제 국립중앙도서관 국가문헌 DB와 대한민국 근대 출판사 연혁을 직접 대조(교차 검증)한다."
+      </button>
+
+      <div class="choice-feedback" id="decision-feedback"></div>
+
+      <!-- Verification Console (Opened on Choice 3) -->
+      <div id="verify-console">
+        <strong style="color: var(--neon-green); font-size: 0.88rem; display: block; margin-bottom: 6px;">
+          🔬 국가문헌 DB 교차 검증(Fact-Check) 완료 보고서
+        </strong>
+        <div class="verify-item">
+          <span>• 도서명 『달빛 속을 걷는 소년과 시간 시계』</span>
+          <span style="color: #ff6b6b; font-weight: bold;">[미등록 허구 도서]</span>
+        </div>
+        <div class="verify-item">
+          <span>• 작가 한민수 (1898~1945) 인물 정보</span>
+          <span style="color: #ff6b6b; font-weight: bold;">[역대 문학인 명단 부재]</span>
+        </div>
+        <div class="verify-item">
+          <span>• 한빛출판사 1928년 설립 여부</span>
+          <span style="color: #ff6b6b; font-weight: bold;">[일제강점기 미설립 출판사]</span>
+        </div>
+        <div class="verify-item">
+          <span>• ISBN 978-89-01-28491-0 체크섬 검사</span>
+          <span style="color: #ff6b6b; font-weight: bold;">[규격 미달 위조 가짜 번호]</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--neon-gold); margin-top: 8px;">
+          💡 <strong>수사관 핵심 발견:</strong> AI는 모르는 질문을 받았을 때 "모릅니다" 대신, 확률상 가장 어울리는 단어들을 조립하여 <strong>완벽해 보이는 거짓말</strong>을 만들어냈습니다.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3. Password Input & Random Coin Reward -->
+    <div class="unlock-section">
+      <h4 style="color: var(--neon-gold); font-size: 0.95rem; margin-bottom: 4px;">🔐 사건 종결 수사 암호 입력</h4>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+        종이 활동지를 해결하여 얻은 2글자 핵심 암호를 입력하세요.
+      </p>
+
+      <input type="text" id="case-pass-input" class="input-code" placeholder="암호 2글자" maxlength="4">
+      <br>
+      <button class="btn" onclick="submitCase1Password()">사건 종결 및 암호 검증</button>
+
+      <!-- Coin Box Area -->
+      <div class="coin-award-box" id="coin-award-box">
+        <h3 style="color: var(--neon-gold); margin-bottom: 6px;">🎉 사건 01 완전 해결!</h3>
+        <p style="font-size: 0.9rem; color: #fff; margin-bottom: 8px;">
+          축하합니다! AI의 답변을 맹신하지 않고 스스로 진실을 밝혀냈습니다.
+        </p>
+        <div style="font-size: 1.3rem; font-weight: 900; color: var(--neon-blue); margin-bottom: 12px;">
+          🪙 알피 코인 <span id="awarded-coin-num" style="color: var(--neon-gold); font-size: 1.6rem;">0</span> ALP 지급 완료! (1~10 난수 추첨)
+        </div>
+        <button class="btn" style="background: var(--neon-green); color: #000;" onclick="returnToMainMap()">
+          🏫 학교 맵으로 돌아가기 (CASE 02 해금 확인) ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function makeDecision(idx) {
+      const fb = document.getElementById('decision-feedback');
+      const consoleBox = document.getElementById('verify-console');
+      fb.style.display = 'block';
+
+      if (idx === 1) {
+        fb.style.background = 'rgba(239, 68, 68, 0.15)';
+        fb.style.border = '1px solid var(--neon-red)';
+        fb.style.color = '#fca5a5';
+        fb.innerHTML = '❌ <strong>판단 오류:</strong> 사서 선생님은 전국 도서관 통합 전산망까지 모두 재확인해 주셨습니다. 시스템 오류가 아닙니다. 다른 판단을 내려보세요!';
+        consoleBox.style.display = 'none';
+      } else if (idx === 2) {
+        fb.style.background = 'rgba(245, 158, 11, 0.15)';
+        fb.style.border = '1px solid #f59e0b';
+        fb.style.color = '#fcd34d';
+        fb.innerHTML = '⚠️ <strong>맹신의 함정:</strong> 겉보기에 그럴듯한 서지 정보(ISBN)가 적혀있다고 해서 그 정보가 반드시 실존하는 진실은 아닙니다. 직접 공식 출처를 대조해야 합니다.';
+        consoleBox.style.display = 'none';
+      } else if (idx === 3) {
+        fb.style.background = 'rgba(46, 204, 113, 0.15)';
+        fb.style.border = '1px solid var(--neon-green)';
+        fb.style.color = '#86efac';
+        fb.innerHTML = '✅ <strong>탁월한 판단!</strong> AI의 말을 맹신하지 않고 공인된 국가 데이터베이스를 직접 대조하는 수사관의 팩트체크를 가동합니다.';
+        consoleBox.style.display = 'block';
+      }
+    }
+
+    function submitCase1Password() {
+      const input = document.getElementById('case-pass-input').value.trim();
+
+      if (input !== "검증") {
+        alert("암호가 일치하지 않습니다! 활동지의 단서 문항을 다시 확인하세요.");
+        return;
+      }
+
+      // 1 ~ 10 사이 랜덤 코인 추첨
+      const coin = Math.floor(Math.random() * 10) + 1;
+
+      // localStorage 상태 저장 (retro.html과 연동)
+      localStorage.setItem("case1_solved", "true");
+      localStorage.setItem("case1_coin", coin);
+
+      // UI 업데이트
+      document.getElementById('awarded-coin-num').innerText = `+${coin}`;
+      document.getElementById('coin-award-box').style.display = 'block';
+    }
+
+    function returnToMainMap() {
+      location.href = 'retro.html';
+    }
+  </script>
+</body>
+</html>
