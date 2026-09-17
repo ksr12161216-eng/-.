@@ -469,7 +469,7 @@
     }
 
     /* ========================================================
-       1. 학생 수사관 로그인 & retro.html 진입
+       1. 학생 수사관 로그인 & retro_hub.html 진입
        ======================================================== */
     function openStudentLoginModal() {
       // 이전에 입력했던 정보가 있으면 불러오기
@@ -498,14 +498,14 @@
         return;
       }
 
-      // retro.html 및 GAS 통신에서 사용할 localStorage 표준 저장
+      // retro_hub.html 및 GAS 통신에서 사용할 localStorage 표준 저장
       localStorage.setItem("student_grade", grade);
       localStorage.setItem("student_class", classNum);
       localStorage.setItem("student_number", studentNum);
       localStorage.setItem("student_name", studentName);
 
-      // retro.html (메인 허브)로 이동!
-      window.location.href = "retro.html";
+      // retro_hub.html (메인 허브)로 이동!
+      window.location.href = "retro_hub.html";
     }
 
     /* ========================================================
