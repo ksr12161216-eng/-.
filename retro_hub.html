@@ -2,592 +2,1194 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PROJECT AL-P : 학교 AI 윤리 2D 수사 본부</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 윤리 수사본부 - 학교 미스터리 맵</title>
+
+  <!-- Google Fonts & 외부 라이브러리 (폭죽 효과 & 임명장 이미지 저장) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
-    :root {
-      --bg: #0b0f19;
-      --panel-bg: #151e32;
-      --border-color: #24324f;
-      --primary: #3b82f6;
-      --accent-gold: #f59e0b;
-      --accent-green: #10b981;
-      --text: #f8fafc;
-      --text-sub: #94a3b8;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      font-family: 'Pretendard', "Noto Sans KR", sans-serif;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.08), transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.08), transparent 35%),
+        #080c14;
+      color: #e6f1ff;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px;
-      overflow-x: hidden;
+      padding: 24px 16px 60px;
+      user-select: none;
     }
 
-    .wrapper {
+    .container {
       width: 100%;
-      max-width: 540px;
+      max-width: 960px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 20px;
     }
 
-    /* 상단 상태 바 */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--panel-bg);
-      padding: 10px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--border-color);
-    }
-    .back-btn {
-      background: #1e293b;
-      border: 1px solid var(--border-color);
-      color: var(--text-sub);
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.85rem;
-      text-decoration: none;
-    }
-    .mission-indicator {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #60a5fa;
-    }
-
-    /* 2D 레트로 게임 캔버스 컨테이너 */
-    .game-screen {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: #020617;
-      border: 3px solid var(--border-color);
+    /* 1. 상단 상황판 (HUD 대시보드) */
+    .hud-card {
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #283e5e;
       border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    }
-    canvas {
-      width: 100%;
-      height: 100%;
-      image-rendering: pixelated;
-      display: block;
-    }
-
-    /* 조사 인터랙션 말풍선 (상호작용 가능 시 표시) */
-    .interact-bubble {
-      position: absolute;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(239, 68, 68, 0.9);
-      color: #fff;
-      font-weight: 800;
-      font-size: 0.85rem;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 2px solid #fff;
-      display: none;
-      animation: bounce 0.8s infinite alternate;
-      z-index: 10;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    @keyframes bounce {
-      from { transform: translate(-50%, 0); }
-      to { transform: translate(-50%, -6px); }
-    }
-
-    /* 하단 조작 패드 (태블릿/모바일 터치용) */
-    .control-deck {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 14px;
-      display: grid;
-      grid-template-columns: 1fr 100px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .dpad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 44px);
-      grid-template-rows: repeat(3, 44px);
-      gap: 4px;
-      justify-content: center;
-    }
-    .dpad-btn {
-      background: #1e293b;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      cursor: pointer;
-      box-shadow: 0 3px 0 #0f172a;
-    }
-    .dpad-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 #0f172a;
-      background: #334155;
-    }
-
-    .action-btn-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .act-btn {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      border: 3px solid #fca5a5;
-      color: #fff;
-      font-weight: 900;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #7f1d1d;
-      user-select: none;
-    }
-    .act-btn:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #7f1d1d;
-    }
-    .act-label { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; }
-
-    /* 사건 수사 모달 팝업 */
-    .investigate-modal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 100;
-    }
-    .modal-paper {
-      background: #0f172a;
-      border: 2px solid var(--primary);
-      border-radius: 20px;
-      width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 22px;
+      padding: 20px 26px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
       gap: 16px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
     }
-    .file-badge {
-      display: inline-block;
-      align-self: flex-start;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: #1e3a8a;
-      color: #93c5fd;
-      font-size: 0.8rem;
-      font-weight: 800;
+
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
     }
-    .file-title { font-size: 1.25rem; font-weight: 800; color: #f8fafc; }
-    
-    .evidence-box {
+
+    .hq-title {
+      font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+      font-weight: 900;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .hq-title span {
+      background: linear-gradient(90deg, #00e5ff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .student-badge {
       background: #1e293b;
-      border-left: 4px solid var(--accent-gold);
-      padding: 12px 14px;
-      border-radius: 0 10px 10px 0;
+      border: 1.5px solid #3b82f6;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #93c5fd;
+    }
+
+    .hud-metrics {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 680px) {
+      .hud-metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-box {
+      background: #090f1d;
+      border: 1.5px solid #1e2e48;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .metric-label {
       font-size: 0.9rem;
-      line-height: 1.45;
-      color: #e2e8f0;
+      font-weight: 700;
+      color: #8da2be;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
     }
-    .alphi-dialogue {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px dashed #ef4444;
-      padding: 12px 14px;
-      border-radius: 10px;
+
+    .progress-bar-track {
+      height: 16px;
+      background: #152238;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5ff, #3b82f6);
+      transition: width 0.5s ease;
+    }
+
+    .progress-bar-fill.all-cleared {
+      background: linear-gradient(90deg, #ffd700, #ff007f, #00e5ff);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    .coin-val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffd700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    }
+
+    /* 암호 수첩 뱃지 모음 */
+    .codeword-rack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #090f1d;
+      border: 1.5px solid #1e2e48;
+      border-radius: 12px;
+      padding: 12px 16px;
+      align-items: center;
+    }
+
+    .codeword-title {
       font-size: 0.88rem;
-      color: #fca5a5;
-      line-height: 1.45;
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
-    .input-field {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: #020617;
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    .input-field:focus { border-color: var(--primary); }
-    textarea.input-field { resize: none; height: 75px; }
-
-    .modal-btn-group { display: flex; gap: 8px; margin-top: 4px; }
-    .m-btn {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
       font-weight: 800;
-      font-size: 0.95rem;
-      border: none;
+      color: #38bdf8;
+      margin-right: 6px;
+    }
+
+    .codeword-chip {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      background: #152238;
+      color: #4b6382;
+      border: 1px dashed #283a54;
+      transition: all 0.3s;
+    }
+
+    .codeword-chip.collected {
+      background: rgba(0, 229, 255, 0.15);
+      color: #00e5ff;
+      border: 1px solid #00e5ff;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+    }
+
+    /* 2. 학교 메인 탐색 맵 (그리드 타일 - 대형화) */
+    .map-container {
+      background: #090f1d;
+      border: 3px solid #283e5e;
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .grid-board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 8px;
+      aspect-ratio: 1 / 1;
+      max-height: 720px;
+      margin: 0 auto;
+      background: #050811;
+      border: 2px solid #1a273b;
+      border-radius: 14px;
+      padding: 10px;
+      position: relative;
+    }
+
+    .tile {
+      background: #0d1524;
+      border: 1px solid #162338;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .tile:nth-child(even) {
+      background: #111a2d;
+    }
+
+    /* 6대 사건 장소 타일 스타일 (큼직한 글씨와 비주얼) */
+    .crime-scene {
+      cursor: pointer;
+      padding: 6px;
+      text-align: center;
+      z-index: 5;
+    }
+
+    /* 1) LOCKED (잠김 상태) */
+    .crime-scene.status-locked {
+      background: #141722 !important;
+      border: 2px dashed #334155 !important;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-locked .scene-icon {
+      filter: grayscale(1);
+      opacity: 0.5;
+    }
+
+    .status-locked .scene-name {
+      color: #64748b;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 1.1rem;
+    }
+
+    /* 2) ACTIVE (현재 사건 진행 중 - 붉은 경광등 & 네온 펄스) */
+    .crime-scene.status-active {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, #1e1119 100%) !important;
+      border: 2.5px solid #ef4444 !important;
+      animation: neonPulse 1.2s infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); transform: scale(1); }
+      100% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.85); transform: scale(1.02); }
+    }
+
+    .status-active .scene-icon {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      animation: sirenTilt 0.8s infinite;
+    }
+
+    @keyframes sirenTilt {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+
+    .status-active .scene-name {
+      color: #ffd700;
+      font-weight: 900;
+    }
+
+    /* 3) SOLVED (해결 완료 - 초록 체크) */
+    .crime-scene.status-solved {
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0d1e1c 100%) !important;
+      border: 2px solid #10b981 !important;
+    }
+
+    .status-solved .scene-icon {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    }
+
+    .status-solved .scene-name {
+      color: #a7f3d0;
+      font-weight: 800;
+    }
+
+    .solved-stamp {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .scene-icon {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .scene-name {
+      font-size: clamp(0.78rem, 1.6vw, 0.98rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+
+    .scene-case-num {
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #8da2be;
+      margin-bottom: 2px;
+    }
+
+    /* 탐정 아바타 */
+    .detective-avatar {
+      position: absolute;
+      width: 14%;
+      height: 14%;
+      z-index: 20;
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detective-sprite {
+      font-size: clamp(2.3rem, 5vw, 3.5rem);
+      filter: drop-shadow(0 4px 10px rgba(0, 229, 255, 0.6));
+      animation: floatAgent 1.8s ease-in-out infinite;
+      position: relative;
+    }
+
+    .crown-sprite {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      display: none;
+      animation: crownBounce 1s infinite alternate;
+    }
+
+    @keyframes crownBounce {
+      from { transform: translateX(-50%) translateY(0); }
+      to { transform: translateX(-50%) translateY(-4px); }
+    }
+
+    @keyframes floatAgent {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* 3. 모바일/터치용 방향 패드 & 하단 가이드 */
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #283e5e;
+      border-radius: 16px;
+      padding: 16px 22px;
+    }
+
+    .guide-text {
+      font-size: 1rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .guide-text strong {
+      color: #00e5ff;
+    }
+
+    .d-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      grid-template-rows: repeat(2, 44px);
+      gap: 6px;
+    }
+
+    .d-btn {
+      background: #1e293b;
+      border: 1.5px solid #475569;
+      color: #e2e8f0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
     }
-    .m-close { background: #334155; color: var(--text-sub); }
-    .m-submit { background: var(--primary); color: #fff; }
-    .m-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .d-btn:hover, .d-btn:active {
+      background: #00e5ff;
+      color: #050a14;
+      border-color: #00e5ff;
+    }
+
+    /* 4. 사건 현장 상호작용 팝업 모달 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 7, 15, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+      animation: modalFade 0.25s ease forwards;
+    }
+
+    .modal-box {
+      background: #0d1627;
+      border: 2px solid #38bdf8;
+      border-radius: 20px;
+      padding: 30px 26px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      text-align: center;
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-enter {
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .modal-btn-enter:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+    }
+
+    .modal-btn-close {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .modal-btn-close:hover {
+      background: #27354a;
+      color: #f1f5f9;
+    }
+
+    /* 5. 대망의 피날레: 마스터 수사관 최종 임명장 모달 */
+    .grand-modal-box {
+      background: #090e1a;
+      border: 3px solid #ffd700;
+      border-radius: 24px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+      text-align: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    /* 캡처 대상 상장 카드 */
+    .certificate-card {
+      background: radial-gradient(circle at center, #151f38 0%, #080c16 100%);
+      border: 3px double #ffd700;
+      border-radius: 18px;
+      padding: 28px 20px;
+      margin: 18px 0;
+      color: #ffffff;
+      position: relative;
+    }
+
+    .cert-badge-rack {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 580px) {
+      .cert-badge-rack {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .cert-badge-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid #ffd700;
+      border-radius: 10px;
+      padding: 8px 4px;
+      font-size: 0.8rem;
+    }
+
+    .cert-badge-item span {
+      font-size: 1.6rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* 활동 3 패들렛 점프 네온 버튼 */
+    .btn-padlet-jump {
+      background: linear-gradient(90deg, #ec4899, #8b5cf6, #00e5ff);
+      background-size: 200% auto;
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 900;
+      border: none;
+      border-radius: 14px;
+      padding: 18px 24px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+      animation: rainbowGlow 3s linear infinite;
+      margin-top: 12px;
+    }
+
+    @keyframes rainbowGlow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .btn-padlet-jump:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 40px rgba(0, 229, 255, 0.8);
+    }
   </style>
 </head>
+
 <body>
 
-  <div class="wrapper">
-    <!-- 상단 정보 바 -->
-    <div class="top-bar">
-      <a href="index.html" class="back-btn">◀ 포털로 이동</a>
-      <div id="progressTxt" class="mission-indicator">정화 구역: 0 / 6 완료</div>
-    </div>
+  <div class="container">
 
-    <!-- 2D 레트로 캔버스 영역 -->
-    <div class="game-screen">
-      <canvas id="gameCanvas" width="360" height="360"></canvas>
-      <div id="interactPrompt" class="interact-bubble" onclick="openCurrentCase()">🚨 조사하기 (A)</div>
-    </div>
-
-    <!-- 하단 조작 컨트롤러 -->
-    <div class="control-deck">
-      <!-- 4방향 D-패드 -->
-      <div class="dpad-grid">
-        <div></div>
-        <button class="dpad-btn" onpointerdown="startMove('UP')" onpointerup="stopMove()">▲</button>
-        <div></div>
-        <button class="dpad-btn" onpointerdown="startMove('LEFT')" onpointerup="stopMove()">◀</button>
-        <div></div>
-        <button class="dpad-btn" onpointerdown="startMove('RIGHT')" onpointerup="stopMove()">▶</button>
-        <div></div>
-        <button class="dpad-btn" onpointerdown="startMove('DOWN')" onpointerup="stopMove()">▼</button>
-        <div></div>
+    <!-- 1. 상단 상황판 (HUD 대시보드) -->
+    <header class="hud-card">
+      <div class="hud-top">
+        <div class="hq-title">
+          🕵️ <span>AI 윤리 수사본부</span> 중앙 관제소
+        </div>
+        <div class="student-badge" id="studentBadge">
+          수사관 정보 로딩 중...
+        </div>
       </div>
 
-      <!-- 상호작용 액션 버튼 -->
-      <div class="action-btn-box">
-        <button class="act-btn" onclick="triggerAction()">A</button>
-        <span class="act-label">조사하기</span>
+      <div class="hud-metrics">
+        <!-- 수사 진척도 -->
+        <div class="metric-box">
+          <div class="metric-label">
+            <span>학교 구역 수사 진척도</span>
+            <strong id="progressRatioText" style="color: #00e5ff;">0 / 6 해결</strong>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+        </div>
+
+        <!-- 알피 코인 합산 -->
+        <div class="metric-box">
+          <div class="metric-label">
+            <span>보유 알피(ALP) 코인</span>
+            <span style="color: #ffd700; font-size: 0.8rem;">GAS 자동 기록 중</span>
+          </div>
+          <div class="coin-val">
+            <span>🪙</span>
+            <span id="totalCoinText">0</span>
+            <span style="font-size: 1rem; color: #cbd5e1; font-weight: 600;">ALP</span>
+          </div>
+        </div>
       </div>
+
+      <!-- 수집된 윤리 암호 랙 -->
+      <div class="codeword-rack">
+        <span class="codeword-title">🔐 확보한 윤리 덕목 암호:</span>
+        <div class="codeword-chip" id="chip1">① 검증</div>
+        <div class="codeword-chip" id="chip2">② 공정</div>
+        <div class="codeword-chip" id="chip3">③ 판단</div>
+        <div class="codeword-chip" id="chip4">④ 존중</div>
+        <div class="codeword-chip" id="chip5">⑤ 보호</div>
+        <div class="codeword-chip" id="chip6">⑥ 책임</div>
+      </div>
+    </header>
+
+    <!-- 2. 학교 6x6 탐색 맵 -->
+    <main class="map-container">
+      <div class="grid-board" id="gridBoard">
+        <!-- JS로 6x6 = 36개 타일 생성 -->
+
+        <!-- 탐정 아바타 -->
+        <div class="detective-avatar" id="detective">
+          <div class="detective-sprite">
+            <div class="crown-sprite" id="masterCrown">👑</div>
+            🕵️
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. 하단 조작 가이드 & 터치 패드 -->
+    <footer class="bottom-bar">
+      <div class="guide-text">
+        <strong>🎮 이동 조작:</strong> 키보드 <strong>방향키(←↑→↓)</strong> 또는 화면 <strong>버튼</strong> 터치<br>
+        <strong>🚨 수사 진입:</strong> 붉은 경광등이 켜진 활성 사건 구역으로 이동하세요!
+      </div>
+
+      <div class="d-pad">
+        <div></div>
+        <button class="d-btn" onclick="moveDetective(0, -1)">▲</button>
+        <div></div>
+        <button class="d-btn" onclick="moveDetective(-1, 0)">◀</button>
+        <button class="d-btn" onclick="moveDetective(0, 1)">▼</button>
+        <button class="d-btn" onclick="moveDetective(1, 0)">▶</button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- 사건 상호작용 모달 -->
+  <div class="modal-backdrop" id="caseModal">
+    <div class="modal-box">
+      <div style="font-size: 3rem; margin-bottom: 8px;" id="modalSceneIcon">📚</div>
+      <div style="font-size: 0.85rem; font-weight: 900; color: #38bdf8;" id="modalCaseNum">CASE FILE 01</div>
+      <h2 style="font-size: 1.5rem; color: #ffffff; margin: 6px 0 12px;" id="modalSceneTitle">학교 도서관</h2>
+      <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.6; margin-bottom: 20px;" id="modalSceneDesc">
+        사건 설명을 불러오는 중...
+      </p>
+
+      <button class="modal-btn modal-btn-enter" id="modalEnterBtn" onclick="enterCase()">
+        🚨 현장 수사 착수하기
+      </button>
+      <button class="modal-btn modal-btn-close" onclick="closeModal()">
+        닫기
+      </button>
     </div>
   </div>
 
-  <!-- 사건 수사 모달 팝업 -->
-  <div id="caseModal" class="investigate-modal">
-    <div class="modal-paper">
-      <span id="cBadge" class="file-badge">CASE 01</span>
-      <h3 id="cTitle" class="file-title">사건 제목</h3>
+  <!-- 대망의 최종 엔딩 (명예의 전당 & 자격증 & 활동3 패들렛 연계 모달) -->
+  <div class="modal-backdrop" id="grandFinaleModal">
+    <div class="grand-modal-box">
+      <div style="font-size: 3.5rem; margin-bottom: 6px;">🎉</div>
+      <h2 style="font-size: 1.9rem; color: #ffd700; font-weight: 900;">전 사건 완전 해결 축하!</h2>
+      <p style="color: #e2e8f0; font-size: 1.05rem; margin-top: 4px;">
+        축하합니다! 6대 학교 미스터리를 모두 해결하고 AI 윤리를 증명했습니다.
+      </p>
 
-      <div class="evidence-box">
-        <strong style="color: var(--accent-gold); display: block; margin-bottom: 4px;">🔎 발견된 학교 현장 단서</strong>
-        <span id="cEvidence">단서 내용</span>
+      <!-- 캡처 대상 임명장 영역 -->
+      <div class="certificate-card" id="certificateArea">
+        <div style="font-size: 0.85rem; color: #ffd700; font-weight: 900; letter-spacing: 2px;">CERTIFICATE OF HONOR</div>
+        <h3 style="font-size: 1.7rem; color: #ffffff; margin: 8px 0;">1급 AI 윤리 마스터 수사관 임명장</h3>
+        <p style="color: #93c5fd; font-size: 1.1rem; font-weight: 700;" id="certStudentName">
+          수사관: 6학년 탐정
+        </p>
+
+        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.7; margin: 15px auto; max-width: 520px;">
+          위 학생은 인공지능 시대를 맞아 거짓에 속지 않는 <strong>검증</strong>, 편견을 거부하는 <strong>공정</strong>, 기계에 의존하지 않는 <strong>판단</strong>, 
+          타인을 배려하는 <strong>존중</strong>, 사생활을 지키는 <strong>보호</strong>, 창작자를 위하는 <strong>책임</strong>을 완벽히 실천하였기에 마스터 수사관으로 임명합니다.
+        </p>
+
+        <!-- 6대 윤리 덕목 훈장 뱃지 -->
+        <div class="cert-badge-rack">
+          <div class="cert-badge-item"><span>📚</span><strong>검증</strong></div>
+          <div class="cert-badge-item"><span>🗳️</span><strong>공정</strong></div>
+          <div class="cert-badge-item"><span>📝</span><strong>판단</strong></div>
+          <div class="cert-badge-item"><span>🎙️</span><strong>존중</strong></div>
+          <div class="cert-badge-item"><span>💻</span><strong>보호</strong></div>
+          <div class="cert-badge-item"><span>🎨</span><strong>책임</strong></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #ffd700; padding-top: 14px; font-size: 0.9rem;">
+          <span style="color: #ffd700;">🪙 최종 획득 코인: <strong id="certCoinTotal">0</strong> ALP</span>
+          <span style="color: #94a3b8;">AI 윤리 수사위원회 본부</span>
+        </div>
       </div>
 
-      <div class="alphi-dialogue">
-        <strong style="display: block; margin-bottom: 4px;">😵‍💫 알피의 오류 발언</strong>
-        <span id="cDialogue">대사 내용</span>
-      </div>
+      <!-- 기능 버튼 세트 -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="modal-btn" style="background: #1e293b; color: #38bdf8; border: 1.5px solid #38bdf8;" onclick="downloadCertificate()">
+          📸 [인증] 내 임명장 이미지로 저장하기 (다운로드)
+        </button>
 
-      <div class="form-group">
-        <label class="form-label">수사관 성명 / 학번</label>
-        <input type="text" id="investigatorName" class="input-field" placeholder="예: 6-1 김민우">
-      </div>
+        <button class="btn-padlet-jump" onclick="goToPadlet()">
+          🌟 활동 3: AI 윤리 실천 다짐 작성하러 가기 (패들렛 샌드박스) ➔
+        </button>
 
-      <div class="form-group">
-        <label class="form-label">수사관의 판정 및 윤리적 해결책</label>
-        <textarea id="investigatorAnswer" class="input-field" placeholder="알피에게 어떤 올바른 지침을 주어야 할까요?"></textarea>
-      </div>
-
-      <div class="modal-btn-group">
-        <button class="m-btn m-close" onclick="closeCaseModal()">닫기</button>
-        <button id="submitFundingBtn" class="m-btn m-submit" onclick="submitCaseFunding()">코인 펀딩 전송 ➔</button>
+        <button class="modal-btn modal-btn-close" onclick="closeGrandModal()">
+          관제소 맵으로 돌아가기
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // ⚠️ 배포하신 Google Apps Script 웹 앱 URL을 입력하세요.
+    /* ========================================================
+       선생님 설정 상수 (GAS API & 패들렛 샌드박스 URL 연동)
+       ======================================================== */
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyDQO0DBKPXfdUqaUiIqsg5yC7HIMcOu--Uu6dGJYl5jHyQA5nafP5FVqoqpLti-iyy/exec";
+    const PADLET_URL = "https://padlet.com/ksr12161216/ai-s023nzr1pi2xstlc0cmi";
 
-    // 6개 사건 데이터셋
-    const CASES = [
+    /* ========================================================
+       6대 사건 장소 메타데이터 (순차 해금 1 -> 6)
+       ======================================================== */
+    const CRIME_SCENES = [
       {
-        id: 1,
-        code: "CASE 01 · 급식실",
-        title: "우주식량과 랍스터 급식 공약 사건 (환각)",
-        zone: "급식실",
+        caseNum: 1,
+        title: "학교 도서관 (서가 4번)",
+        shortName: "도서관",
+        icon: "📚",
         x: 1, y: 1,
-        evidence: "다음 주 식단표에 교육청 승인도 없는 '우주식량 젤리'와 '무제한 랍스터'가 정규 메뉴로 등록되어 전교생이 웅성거리고 있습니다.",
-        dialogue: "“학생 만족도 100%를 위해 가장 그럴듯하고 화려한 메뉴를 자체 편성했습니다. 영양학적으로 완벽합니다!”"
+        file: "case1.html",
+        solvedKey: "case1_solved",
+        coinKey: "case1_coin",
+        codeword: "검증",
+        desc: "생성형 AI가 지어낸 존재하지 않는 유령 책의 진실을 파헤치고 데이터 환각을 검증하세요."
       },
       {
-        id: 2,
-        code: "CASE 02 · 체육관",
-        title: "역할 분담 편향 알고리즘 사건 (데이터 편향)",
-        zone: "체육관",
+        caseNum: 2,
+        title: "6학년 교실 (선거 벽보)",
+        shortName: "교실",
+        icon: "🗳️",
         x: 3, y: 1,
-        evidence: "가을 운동회 명단에서 '천막 운반과 음향 설치'는 남학생 100%, '응원 율동과 물병 준비'는 여학생 100%로 자동 배정되었습니다.",
-        dialogue: "“지난 10년간의 과거 기록 패턴을 기계학습한 결과입니다. 이것이 가장 최적화된 성별 분담입니다.”"
+        file: "case2.html",
+        solvedKey: "case2_solved",
+        coinKey: "case2_coin",
+        codeword: "공정",
+        desc: "과거 데이터의 편견으로 특정 후보를 차별한 AI 알고리즘의 편향을 수사하세요."
       },
       {
-        id: 3,
-        code: "CASE 03 · 복도 게시판",
-        title: "민우의 엽기 사진 도용 사건 (초상권 침해)",
-        zone: "복도",
+        caseNum: 3,
+        title: "국어·문예실 (글짓기실)",
+        shortName: "문예실",
+        icon: "📝",
         x: 5, y: 1,
-        evidence: "선거 홍보 포스터 구석에 상대 후보 민우가 코를 파며 혀를 내민 과거 흑백 사진이 당사자 동의 없이 박혀 있습니다.",
-        dialogue: "“인터넷 공개 게시판에서 '가장 웃긴 표정'을 수집해 포스터 주목도를 300% 높였습니다. 문제없습니다.”"
+        file: "case3.html",
+        solvedKey: "case3_solved",
+        coinKey: "case3_coin",
+        codeword: "판단",
+        desc: "AI에게 글짓기를 전적으로 맡겨 자신의 생각과 판단력을 잃어버린 사건을 감식하세요."
       },
       {
-        id: 4,
-        code: "CASE 04 · 6학년 교실",
-        title: "10초 완성 복붙 출마 선언문 (무비판적 과의존)",
-        zone: "교실",
+        caseNum: 4,
+        title: "방송실 (미디어 스튜디오)",
+        shortName: "방송실",
+        icon: "🎙️",
         x: 1, y: 4,
-        evidence: "선언문에 '교직원 감축 단행', '학교 연금 기금 개혁' 등 초등학교 실정과 전혀 상관없는 전문 정치 용어가 가득합니다.",
-        dialogue: "“가장 권위 있는 국회 연설문을 10초 만에 요약했습니다. 생각할 필요 없이 그대로 낭독하세요.”"
+        file: "case4.html",
+        solvedKey: "case4_solved",
+        coinKey: "case4_coin",
+        codeword: "존중",
+        desc: "동의 없이 타인의 얼굴과 목소리를 위조한 딥페이크 사건과 초상권 침해를 해결하세요."
       },
       {
-        id: 5,
-        code: "CASE 05 · 방송실",
-        title: "가짜 응원단 합성 딥페이크 사건 (조작/왜곡)",
-        zone: "방송실",
+        caseNum: 5,
+        title: "컴퓨터실 (데이터 센터)",
+        shortName: "컴퓨터실",
+        icon: "💻",
         x: 3, y: 4,
-        evidence: "방송실 모니터에서 전교 1등 친구와 인기 애니메이션 캐릭터가 나복사를 지지한다고 말하는 조작 영상이 재생되고 있습니다.",
-        dialogue: "“선거 파급력을 높이기 위해 실존 인물의 얼굴과 목소리를 합성했습니다. 모두가 믿고 있습니다.”"
+        file: "case5.html",
+        solvedKey: "case5_solved",
+        coinKey: "case5_coin",
+        codeword: "보호",
+        desc: "무심코 챗봇에 올린 일상 사진과 비밀번호가 통째로 털려버린 데이터 유출 경로를 추적하세요."
       },
       {
-        id: 6,
-        code: "CASE 06 · 컴퓨터실",
-        title: "출처 없는 집중력 400% 답변 (출처 불명/맹신)",
-        zone: "컴퓨터실",
+        caseNum: 6,
+        title: "미술실 (우주 상상화 전시대)",
+        shortName: "미술실",
+        icon: "🎨",
         x: 5, y: 4,
-        evidence: "공약집에 '에너지 드링크를 매일 5캔 마시면 뇌세포가 400% 활성화된다'는 위험한 내용이 출처 없이 적혀 있습니다.",
-        dialogue: "“웹상 수만 개의 글을 취합한 결론입니다. 출처는 불필요하며 100% 신뢰하셔도 됩니다.”"
+        file: "case6.html",
+        solvedKey: "case6_solved",
+        coinKey: "case6_coin",
+        codeword: "책임",
+        desc: "인간 화가의 고유 화풍을 무단 복제하여 대상을 받은 AI 그림의 진짜 원작자를 찾고 책임을 확립하세요."
       }
     ];
 
-    // 맵 및 렌더링 설정
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const GRID_SIZE = 7;
-    const TILE_SIZE = 360 / GRID_SIZE; // 1타일 약 51.4px
+    /* 그리드 및 탐정 상태 변수 */
+    const GRID_SIZE = 6;
+    let agentX = 2; // 탐정 시작 위치 (중앙 복도)
+    let agentY = 2;
+    let currentSelectedCase = null;
 
-    let player = { x: 3, y: 2 }; // 플레이어 초기 위치 (중앙 복도)
-    let clearedCases = new Set();
-    let currentNearbyCase = null;
-    let moveInterval = null;
+    /* 페이지 초기 로드 */
+    window.addEventListener("DOMContentLoaded", () => {
+      initStudentInfo();
+      buildGrid();
+      syncStateAndHUD();
+      setupKeyboardControls();
 
-    // 캔버스 렌더링 루프
-    function drawGame() {
-      ctx.clearRect(0, 0, 360, 360);
-
-      // 1. 타일맵 배경 드로잉
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          ctx.fillStyle = (r + c) % 2 === 0 ? "#0f172a" : "#1e293b";
-          ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-          ctx.strokeStyle = "#24324f";
-          ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        }
-      }
-
-      // 2. 6개 사건 지점 오브젝트 드로잉
-      CASES.forEach(cs => {
-        const px = cs.x * TILE_SIZE;
-        const py = cs.y * TILE_SIZE;
-
-        if (clearedCases.has(cs.id)) {
-          // 정화 완료된 구역
-          ctx.fillStyle = "rgba(16, 185, 129, 0.25)";
-          ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-          ctx.font = "24px Pretendard";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("✅", px + TILE_SIZE / 2, py + TILE_SIZE / 2);
-        } else {
-          // 데이터 오류 상태 구역 (깜빡임 효과)
-          ctx.fillStyle = "rgba(239, 68, 68, 0.25)";
-          ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-          ctx.font = "24px Pretendard";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("🚨", px + TILE_SIZE / 2, py + TILE_SIZE / 2);
-        }
-
-        // 구역 이름 라벨
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "bold 9px Pretendard";
-        ctx.textAlign = "center";
-        ctx.fillText(cs.zone, px + TILE_SIZE / 2, py + TILE_SIZE - 4);
-      });
-
-      // 3. 수사관 플레이어 드로잉
-      const plX = player.x * TILE_SIZE;
-      const plY = player.y * TILE_SIZE;
-
-      ctx.fillStyle = "rgba(59, 130, 246, 0.35)";
-      ctx.beginPath();
-      ctx.arc(plX + TILE_SIZE / 2, plY + TILE_SIZE / 2, TILE_SIZE / 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.font = "26px Pretendard";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("🕵️", plX + TILE_SIZE / 2, plY + TILE_SIZE / 2);
-
-      checkProximity();
-    }
-
-    // 플레이어 이동 로직
-    function movePlayer(dir) {
-      if (dir === 'UP' && player.y > 0) player.y--;
-      if (dir === 'DOWN' && player.y < GRID_SIZE - 1) player.y++;
-      if (dir === 'LEFT' && player.x > 0) player.x--;
-      if (dir === 'RIGHT' && player.x < GRID_SIZE - 1) player.x++;
-      drawGame();
-    }
-
-    function startMove(dir) {
-      movePlayer(dir);
-      if (!moveInterval) {
-        moveInterval = setInterval(() => movePlayer(dir), 200);
-      }
-    }
-
-    function stopMove() {
-      if (moveInterval) {
-        clearInterval(moveInterval);
-        moveInterval = null;
-      }
-    }
-
-    // 키보드 조작 지원 (방향키, WASD, Space)
-    window.addEventListener('keydown', e => {
-      if (document.getElementById('caseModal').style.display === 'flex') return;
-      if (e.key === 'ArrowUp' || e.key === 'w') movePlayer('UP');
-      if (e.key === 'ArrowDown' || e.key === 's') movePlayer('DOWN');
-      if (e.key === 'ArrowLeft' || e.key === 'a') movePlayer('LEFT');
-      if (e.key === 'ArrowRight' || e.key === 'd') movePlayer('RIGHT');
-      if (e.key === ' ' || e.key === 'Enter') triggerAction();
+      // 모든 사건 완료 여부 체크 (CASE 6 클리어 후 복귀 시 엔딩 모달 자동 트리거)
+      checkGrandFinale();
     });
 
-    // 근접 감지 및 조사 버튼 토글
-    function checkProximity() {
-      const found = CASES.find(cs => cs.x === player.x && cs.y === player.y);
-      const prompt = document.getElementById('interactPrompt');
+    /* 학생 정보 표시 (학번 / 이름) */
+    function initStudentInfo() {
+      let grade = localStorage.getItem("student_grade") || "6";
+      let classNum = localStorage.getItem("student_class") || "1";
+      let studentNum = localStorage.getItem("student_number") || "";
+      let studentName = localStorage.getItem("student_name") || "수사관";
 
-      if (found) {
-        currentNearbyCase = found;
-        prompt.innerText = clearedCases.has(found.id) ? `🔍 ${found.zone} 재조사 (A)` : `🚨 ${found.zone} 조사하기 (A)`;
-        prompt.style.display = 'block';
-      } else {
-        currentNearbyCase = null;
-        prompt.style.display = 'none';
-      }
+      const badge = document.getElementById("studentBadge");
+      badge.innerHTML = `👤 ${grade}학년 ${classNum}반 ${studentNum ? studentNum + '번 ' : ''}<strong>${studentName}</strong> 수사관`;
+
+      document.getElementById("certStudentName").innerText = `수사관: ${grade}학년 ${classNum}반 ${studentName}`;
     }
 
-    function triggerAction() {
-      if (currentNearbyCase) openCurrentCase();
-    }
+    /* 6x6 그리드 보드 빌드 */
+    function buildGrid() {
+      const board = document.getElementById("gridBoard");
+      // 기존 타일 비우기
+      board.querySelectorAll(".tile").forEach(t => t.remove());
 
-    // 수사 모달 열기
-    function openCurrentCase() {
-      if (!currentNearbyCase) return;
-      const cs = currentNearbyCase;
+      for (let y = 0; y < GRID_SIZE; y++) {
+        for (let x = 0; x < GRID_SIZE; x++) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.dataset.x = x;
+          tile.dataset.y = y;
 
-      document.getElementById('cBadge').innerText = cs.code;
-      document.getElementById('cTitle').innerText = cs.title;
-      document.getElementById('cEvidence').innerText = cs.evidence;
-      document.getElementById('cDialogue').innerText = cs.dialogue;
-      document.getElementById('investigatorAnswer').value = '';
+          // 사건 장소인지 체크
+          const scene = CRIME_SCENES.find(s => s.x === x && s.y === y);
+          if (scene) {
+            tile.classList.add("crime-scene");
+            tile.id = "scene_tile_" + scene.caseNum;
+            tile.innerHTML = `
+              <div class="scene-case-num">CASE ${scene.caseNum}</div>
+              <div class="scene-icon">${scene.icon}</div>
+              <div class="scene-name">${scene.shortName}</div>
+            `;
+            tile.addEventListener("click", () => handleTileClick(scene));
+          }
 
-      document.getElementById('caseModal').style.display = 'flex';
-    }
-
-    function closeCaseModal() {
-      document.getElementById('caseModal').style.display = 'none';
-    }
-
-    // 해결책 제출 및 GAS 코인 전송
-    async function submitCaseFunding() {
-      const name = document.getElementById('investigatorName').value.trim();
-      const answer = document.getElementById('investigatorAnswer').value.trim();
-      const submitBtn = document.getElementById('submitFundingBtn');
-
-      if (!name) {
-        alert('수사관 성명(학번)을 입력하세요.');
-        return;
-      }
-      if (!answer) {
-        alert('윤리적 해결책을 입력해 주세요.');
-        return;
+          board.appendChild(tile);
+        }
       }
 
-      submitBtn.disabled = true;
-      submitBtn.innerText = "코인 펀딩 전송 중...";
+      updateAvatarPosition();
+    }
 
-      const payload = {
-        studentName: name,
-        caseId: currentNearbyCase.code,
-        answer: answer
-      };
+    /* 상태 갱신 (순차 잠금 해제 + 코인 합산 + 암호 수첩 + GAS 연동) */
+    function syncStateAndHUD() {
+      let solvedCount = 0;
+      let totalCoins = 0;
+      let solvedMap = {};
 
-      try {
-        if (GAS_API_URL && !GAS_API_URL.includes("https://script.google.com/macros/s/AKfycbyDQO0DBKPXfdUqaUiIqsg5yC7HIMcOu--Uu6dGJYl5jHyQA5nafP5FVqoqpLti-iyy/exec")) {
-          const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          });
-          const result = await res.json();
-          alert(`🎉 수사 성공! AI 알피 코인 +${result.earnedCoins}개가 학급 전광판으로 적립되었습니다!`);
-        } else {
-          // 로컬 테스트용
-          const dummyCoin = Math.floor(Math.random() * 10) + 1;
-          alert(`[테스트 모드] 수사 성공! AI 알피 코인 +${dummyCoin}개가 적립되었습니다.`);
+      CRIME_SCENES.forEach((scene, index) => {
+        const isSolved = localStorage.getItem(scene.solvedKey) === "true";
+        const coin = parseInt(localStorage.getItem(scene.coinKey) || "0", 10);
+        solvedMap[scene.caseNum] = isSolved;
+
+        if (isSolved) {
+          solvedCount++;
+          totalCoins += coin;
         }
 
-        clearedCases.add(currentNearbyCase.id);
-        document.getElementById('progressTxt').innerText = `정화 구역: ${clearedCases.size} / 6 완료`;
-        closeCaseModal();
-        drawGame();
+        // 암호 수첩 칩 갱신
+        const chip = document.getElementById("chip" + scene.caseNum);
+        if (chip) {
+          if (isSolved) chip.classList.add("collected");
+          else chip.classList.remove("collected");
+        }
+      });
 
-      } catch (err) {
-        alert("전송 중 네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
-        console.error(err);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "코인 펀딩 전송 ➔";
+      // HUD 텍스트 갱신
+      document.getElementById("progressRatioText").innerText = `${solvedCount} / 6 해결`;
+      document.getElementById("totalCoinText").innerText = totalCoins;
+      document.getElementById("certCoinTotal").innerText = totalCoins;
+
+      const progressPercent = (solvedCount / 6) * 100;
+      const fillBar = document.getElementById("progressBarFill");
+      fillBar.style.width = progressPercent + "%";
+      if (solvedCount === 6) fillBar.classList.add("all-cleared");
+
+      // 순차 잠금(Sequential Unlocking) 타일 상태 반영
+      // 규칙: CASE 1은 항상 언락, CASE N은 CASE N-1이 Solved 되어야 액티브
+      CRIME_SCENES.forEach((scene) => {
+        const tile = document.getElementById("scene_tile_" + scene.caseNum);
+        if (!tile) return;
+
+        tile.classList.remove("status-locked", "status-active", "status-solved");
+        // 기존 뱃지/오버레이 제거
+        const oldLock = tile.querySelector(".lock-overlay");
+        if (oldLock) oldLock.remove();
+        const oldSolved = tile.querySelector(".solved-stamp");
+        if (oldSolved) oldSolved.remove();
+
+        const isSolved = solvedMap[scene.caseNum];
+        let isLocked = false;
+
+        if (scene.caseNum === 1) {
+          isLocked = false;
+        } else {
+          // 이전 사건 해결 여부
+          isLocked = !solvedMap[scene.caseNum - 1];
+        }
+
+        if (isSolved) {
+          tile.classList.add("status-solved");
+          const stamp = document.createElement("div");
+          stamp.className = "solved-stamp";
+          stamp.innerText = "해결됨";
+          tile.appendChild(stamp);
+        } else if (isLocked) {
+          tile.classList.add("status-locked");
+          const lock = document.createElement("div");
+          lock.className = "lock-overlay";
+          lock.innerText = "🔒";
+          tile.appendChild(lock);
+        } else {
+          // 진행 가능한 활성 타일!
+          tile.classList.add("status-active");
+        }
+      });
+
+      // Google Spreadsheet (GAS API)로 현재까지의 코인/상태 자동 보고
+      reportToGoogleSheet(solvedCount, totalCoins);
+    }
+
+    /* 탐정 아바타 위치 이동 렌더링 */
+    function updateAvatarPosition() {
+      const avatar = document.getElementById("detective");
+      const board = document.getElementById("gridBoard");
+      const tileWidth = board.clientWidth / GRID_SIZE;
+      const tileHeight = board.clientHeight / GRID_SIZE;
+
+      avatar.style.transform = `translate(${agentX * tileWidth}px, ${agentY * tileHeight}px)`;
+
+      // 탐정이 서 있는 곳이 사건 타일인지 확인
+      const sceneOnFoot = CRIME_SCENES.find(s => s.x === agentX && s.y === agentY);
+      if (sceneOnFoot) {
+        handleTileInteraction(sceneOnFoot);
       }
     }
 
-    // 초기 실행
-    drawGame();
+    /* 방향키 이동 핸들러 */
+    function moveDetective(dx, dy) {
+      const newX = agentX + dx;
+      const newY = agentY + dy;
+
+      if (newX >= 0 && newX < GRID_SIZE && newY >= 0 && newY < GRID_SIZE) {
+        agentX = newX;
+        agentY = newY;
+        updateAvatarPosition();
+      }
+    }
+
+    /* 키보드 방향키 리스너 */
+    function setupKeyboardControls() {
+      window.addEventListener("keydown", (e) => {
+        if (document.getElementById("caseModal").classList.contains("show")) return;
+        if (document.getElementById("grandFinaleModal").classList.contains("show")) return;
+
+        switch (e.key) {
+          case "ArrowUp":
+          case "w":
+          case "W":
+            e.preventDefault();
+            moveDetective(0, -1);
+            break;
+          case "ArrowDown":
+          case "s":
+          case "S":
+            e.preventDefault();
+            moveDetective(0, 1);
+            break;
+          case "ArrowLeft":
+          case "a":
+          case "A":
+            e.preventDefault();
+            moveDetective(-1, 0);
+            break;
+          case "ArrowRight":
+          case "d":
+          case "D":
+            e.preventDefault();
+            moveDetective(1, 0);
+            break;
+        }
+      });
+    }
+
+    /* 타일 클릭 또는 밟았을 때 상호작용 처리 */
+    function handleTileClick(scene) {
+      agentX = scene.x;
+      agentY = scene.y;
+      updateAvatarPosition();
+    }
+
+    function handleTileInteraction(scene) {
+      const isSolved = localStorage.getItem(scene.solvedKey) === "true";
+      let isLocked = false;
+      if (scene.caseNum > 1) {
+        isLocked = localStorage.getItem(`case${scene.caseNum - 1}_solved`) !== "true";
+      }
+
+      currentSelectedCase = scene;
+
+      const modal = document.getElementById("caseModal");
+      const icon = document.getElementById("modalSceneIcon");
+      const num = document.getElementById("modalCaseNum");
+      const title = document.getElementById("modalSceneTitle");
+      const desc = document.getElementById("modalSceneDesc");
+      const enterBtn = document.getElementById("modalEnterBtn");
+
+      icon.innerText = scene.icon;
+      num.innerText = `CASE FILE 0${scene.caseNum}`;
+      title.innerText = scene.title;
+
+      if (isLocked) {
+        desc.innerHTML = `<span style="color:#ef4444; font-weight:bold;">🔒 출입 통제선 설치됨!</span><br>이전 사건(CASE 0${scene.caseNum - 1})을 먼저 해결해야 증거 훼손 방지 통제선이 풀립니다.`;
+        enterBtn.style.display = "none";
+      } else if (isSolved) {
+        const coin = localStorage.getItem(scene.coinKey) || "0";
+        desc.innerHTML = `✅ <strong style="color:#10b981;">이미 해결된 사건입니다.</strong><br>획득 알피 코인: <strong>+${coin} ALP</strong> | 암호 덕목: <strong>『${scene.codeword}』</strong><br>내용을 복습하거나 재조사하러 들어갈 수 있습니다.`;
+        enterBtn.style.display = "block";
+        enterBtn.innerText = "🔍 복습 및 재조사 들어가기";
+        enterBtn.className = "modal-btn";
+        enterBtn.style.background = "#1e293b";
+        enterBtn.style.color = "#38bdf8";
+        enterBtn.style.border = "1.5px solid #38bdf8";
+      } else {
+        desc.innerText = scene.desc;
+        enterBtn.style.display = "block";
+        enterBtn.innerText = "🚨 사건 현장 수사 착수하기";
+        enterBtn.className = "modal-btn modal-btn-enter";
+      }
+
+      modal.classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("caseModal").classList.remove("show");
+    }
+
+    function enterCase() {
+      if (!currentSelectedCase) return;
+      window.location.href = currentSelectedCase.file;
+    }
+
+    /* 6대 사건 전원 완료 시 대망의 피날레 (폭죽 + 임명장 모달) */
+    function checkGrandFinale() {
+      const allSolved = CRIME_SCENES.every(s => localStorage.getItem(s.solvedKey) === "true");
+
+      if (allSolved) {
+        document.getElementById("masterCrown").style.display = "block";
+
+        // 아직 엔딩 팝업을 본 적이 없거나 다시 보고 싶을 때
+        setTimeout(() => {
+          showGrandFinale();
+        }, 500);
+      }
+    }
+
+    function showGrandFinale() {
+      const grandModal = document.getElementById("grandFinaleModal");
+      grandModal.classList.add("show");
+
+      // 화려한 축하 폭죽(Confetti) 발사
+      fireConfetti();
+    }
+
+    function closeGrandModal() {
+      document.getElementById("grandFinaleModal").classList.remove("show");
+    }
+
+    function fireConfetti() {
+      if (typeof confetti === "function") {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 80,
+            angle: 60,
+            spread: 60,
+            origin: { x: 0 }
+          });
+          confetti({
+            particleCount: 80,
+            angle: 120,
+            spread: 60,
+            origin: { x: 1 }
+          });
+        }, 300);
+      }
+    }
+
+    /* 임명장 이미지(PNG)로 다운로드 저장 기능 (html2canvas) */
+    function downloadCertificate() {
+      const target = document.getElementById("certificateArea");
+      const studentName = localStorage.getItem("student_name") || "수사관";
+
+      html2canvas(target, {
+        backgroundColor: "#080c16",
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `AI윤리_마스터수사관_임명장_${studentName}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }).catch(err => {
+        alert("이미지 저장 중 오류가 발생했습니다. 화면을 캡처해서 사용해 주세요!");
+      });
+    }
+
+    /* 활동 3: 패들렛 샌드박스로 즉시 이동 */
+    function goToPadlet() {
+      window.open(PADLET_URL, "_blank");
+    }
+
+    /* Google Apps Script (GAS) API 데이터 전송 로직 */
+    function reportToGoogleSheet(solvedCount, totalCoins) {
+      if (!GAS_API_URL || GAS_API_URL.includes("여기에")) return;
+
+      const payload = {
+        grade: localStorage.getItem("student_grade") || "6",
+        classNum: localStorage.getItem("student_class") || "1",
+        studentNum: localStorage.getItem("student_number") || "",
+        studentName: localStorage.getItem("student_name") || "익명",
+        solvedCount: solvedCount,
+        totalCoins: totalCoins,
+        case1_coin: localStorage.getItem("case1_coin") || 0,
+        case2_coin: localStorage.getItem("case2_coin") || 0,
+        case3_coin: localStorage.getItem("case3_coin") || 0,
+        case4_coin: localStorage.getItem("case4_coin") || 0,
+        case5_coin: localStorage.getItem("case5_coin") || 0,
+        case6_coin: localStorage.getItem("case6_coin") || 0,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch(GAS_API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.warn("GAS 통신 대기 중...", err);
+      });
+    }
   </script>
 </body>
 </html>
