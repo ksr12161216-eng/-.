@@ -823,7 +823,7 @@
         // 1 ~ 10 사이 알피 코인 랜덤 추첨
         const coin = Math.floor(Math.random() * 10) + 1;
 
-        // localStorage 저장 (retro.html 연동용)
+        // localStorage 저장 (retro_hub.html 연동용)
         localStorage.setItem("case6_solved", "true");
         localStorage.setItem("case6_coin", coin);
 
@@ -844,7 +844,7 @@
 
     /* 5. 메인 학교 맵 복귀 */
     function goMap() {
-      window.location.href = "retro.html";
+      window.location.href = "retro_hub.html";
     }
   </script>
 </body>
