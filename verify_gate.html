@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 윤리 수사본부 - 보안 자격 검문소</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  
+  <!-- 클라이언트단 PDF 텍스트 파싱 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <style>
+    :root {
+      --bg: #070c18;
+      --card-bg: #0f172a;
+      --border: #20334e;
+      --neon-blue: #00e5ff;
+      --neon-gold: #ffd700;
+      --neon-green: #10b981;
+      --neon-red: #ef4444;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(0, 229, 255, 0.12), transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(255, 215, 0, 0.08), transparent 45%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .scanner-card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 사이버네틱 헤더 */
+    .gate-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--neon-blue);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--neon-blue);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .gate-title {
+      font-size: clamp(1.5rem, 3.5vw, 1.9rem);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .gate-desc {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* 드래그 앤 드롭 업로드 구역 */
+    .drop-zone {
+      border: 2.5px dashed #334e75;
+      border-radius: 18px;
+      padding: 36px 20px;
+      background: rgba(11, 19, 36, 0.7);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--neon-blue);
+      background: rgba(0, 229, 255, 0.08);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.25);
+    }
+
+    .drop-icon {
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      animation: floatIcon 2s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .drop-prompt {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+
+    .drop-sub {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    #fileInput { display: none; }
+
+    /* 스캔 프로그레스 및 피드백 레이아웃 */
+    .scan-status-panel {
+      display: none;
+      margin-top: 24px;
+      background: #080f1e;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .scan-status-panel.active { display: block; }
+
+    .status-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--neon-blue);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #142138;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-gold));
+      transition: width 0.4s ease;
+    }
+
+    .detect-result-box {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #1e2e48;
+      padding: 6px 0;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-val { font-weight: 800; color: #fff; }
+
+    /* 통과 후 출동 버튼 */
+    .btn-enter-hq {
+      display: none;
+      width: 100%;
+      padding: 16px 20px;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+      animation: pulseBtn 1.2s infinite alternate;
+    }
+
+    @keyframes pulseBtn {
+      from { transform: scale(1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+      to { transform: scale(1.02); box-shadow: 0 0 35px rgba(16, 185, 129, 0.8); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scanner-card">
+    <span class="gate-badge">SECURITY GATEWAY : LEVEL 2</span>
+    <h1 class="gate-title">활동 2 출동 보안 검문소</h1>
+    <p class="gate-desc">
+      활동 1에서 발급받은 <strong>[FACT 요원증 PDF 파일]</strong>을 인식시켜 주세요.<br>
+      정식 요원 자격이 인증되면 6대 사건 수사본부로 출입이 허가됩니다.
+    </p>
+
+    <!-- 드래그 & 업로드 영역 -->
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-icon">📑</div>
+      <div class="drop-prompt">요원증 PDF 파일을 여기에 끌어다 놓으세요</div>
+      <div class="drop-sub">또는 클릭하여 내 PC의 PDF 파일 선택 (자동 감식 진행)</div>
+      <input type="file" id="fileInput" accept="application/pdf">
+    </div>
+
+    <!-- 실시간 스캔 감식 판넬 -->
+    <div class="scan-status-panel" id="statusPanel">
+      <div class="status-title">
+        <span id="scanStatusText">📡 문서 보안 코드 정밀 스캔 중...</span>
+        <span id="scanPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="detect-result-box" id="detectResult">
+        <!-- 결과 항목 동적 생성 -->
+      </div>
+    </div>
+
+    <!-- 활동 2 본부 출동 버튼 -->
+    <button class="btn-enter-hq" id="btnEnter" onclick="goToActivity2()">
+      🚨 정식 요원 인증 완료: 활동 2 수사본부 출동 ➔
+    </button>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const statusPanel = document.getElementById('statusPanel');
+    const progressBar = document.getElementById('progressBar');
+    const scanPercent = document.getElementById('scanPercent');
+    const scanStatusText = document.getElementById('scanStatusText');
+    const detectResult = document.getElementById('detectResult');
+    const btnEnter = document.getElementById('btnEnter');
+
+    let verifiedAgentName = "";
+
+    // 드래그 앤 드롭 이벤트
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        processPdfFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        processPdfFile(e.target.files[0]);
+      }
+    });
+
+    // PDF 텍스트 파싱 및 무결성 검증 로직
+    async function processPdfFile(file) {
+      if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+        alert("활동 1에서 발급받은 PDF 파일만 인식할 수 있습니다!");
+        return;
+      }
+
+      statusPanel.classList.add('active');
+      btnEnter.style.display = 'none';
+      detectResult.innerHTML = "";
+      updateProgress(20, "문서 바이너리 데이터 로드 중...");
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        
+        updateProgress(50, "PDF 텍스트 암호화 블록 판독 중...");
+        
+        let fullText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          fullText += textContent.items.map(item => item.str).join(" ") + " ";
+        }
+
+        updateProgress(80, "FACT 요원 인증 키 교차 검증 중...");
+
+        setTimeout(() => {
+          verifyContent(fullText);
+        }, 500);
+
+      } catch (err) {
+        console.error(err);
+        updateProgress(100, "❌ PDF 판독 오류");
+        detectResult.innerHTML = `<span style="color:var(--neon-red); font-weight:bold;">유효하지 않은 파일 포맷이거나 문서가 손상되었습니다.</span>`;
+      }
+    }
+
+    function updateProgress(pct, text) {
+      progressBar.style.width = pct + "%";
+      scanPercent.innerText = pct + "%";
+      scanStatusText.innerText = text;
+    }
+
+    // 활동 1 요원증 핵심 키워드 유효성 검사
+    function verifyContent(text) {
+      // 키워드 검증: 요원증 필수 텍스트들이 존재하는지 확인
+      const hasCertTitle = text.includes("AI 비판적 탐구자 요원증") || text.includes("FACT-CHECKER CERTIFICATE");
+      const hasCode = text.includes("#2026-AI-6GRADE") || text.includes("F-A-C-T-!");
+      const hasQualification = text.includes("공식 FACT 요원") || text.includes("나복사");
+
+      if (hasCertTitle && hasCode && hasQualification) {
+        updateProgress(100, "✅ FACT 공인 요원 자격 인증 성공!");
+
+        // 수사관 성명 추출 (정규식 파싱)
+        let extractedName = "수사관";
+        const nameMatch = text.match(/수사관\s*성명[:：\s]*([^\s·•\n]+)/);
+        if (nameMatch && nameMatch[1]) {
+          extractedName = nameMatch[1].trim();
+        } else {
+          // 기존 localStorage 데이터가 있으면 활용
+          extractedName = localStorage.getItem("student_name") || "정예 수사관";
+        }
+        verifiedAgentName = extractedName;
+
+        // 활동 2용 localStorage에 자격 갱신
+        localStorage.setItem("student_name", verifiedAgentName);
+        localStorage.setItem("fact_certified", "true");
+
+        detectResult.innerHTML = `
+          <div class="result-row">
+            <span>인증 문서:</span>
+            <span class="result-val" style="color:var(--neon-gold);">AI 비판적 탐구자 공식 요원증</span>
+          </div>
+          <div class="result-row">
+            <span>수사관 성명:</span>
+            <span class="result-val" style="color:var(--neon-blue);">${verifiedAgentName}</span>
+          </div>
+          <div class="result-row">
+            <span>보안 인가 코드:</span>
+            <span class="result-val" style="color:var(--neon-green);">#2026-AI-6GRADE (승인됨)</span>
+          </div>
+          <div class="result-row">
+            <span>출동 허가 구역:</span>
+            <span class="result-val">학교 6대 미스터리 수사본부</span>
+          </div>
+        `;
+
+        btnEnter.style.display = 'block';
+
+      } else {
+        updateProgress(100, "🚨 자격 인증 실패");
+        detectResult.innerHTML = `
+          <div style="color:var(--neon-red); font-weight:bold; line-height:1.6;">
+            [인증 거부] 업로드된 문서는 공인된 'FACT 요원증'이 아닙니다.<br>
+            활동 1 시뮬레이터를 완료하고 내려받은 PDF 파일을 다시 넣어주세요.
+          </div>
+        `;
+      }
+    }
+
+    function goToActivity2() {
+      // 활동 2 메인 허브로 이동!
+      window.location.href = "retro_hub.html";
+    }
+  </script>
+</body>
+</html>
